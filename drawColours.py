@@ -84,7 +84,7 @@ def local_optima(solution):
 
 def random_neighbour(solution):
     neighbour = solution.copy()
-    position_to_flip = random.randint(0, len(solution) - 1)
+    position_to_flip = random.randint(0, len(solution) - 2)
 
     temp_first = neighbour[position_to_flip].copy()
     temp_second = neighbour[position_to_flip + 1].copy()
@@ -103,14 +103,41 @@ os.chdir(dir_path)  # Change the working directory so we can read the file
 
 ncolors, colours = read_file('colours.txt')  # Total number of colours and list of colours
 
-test_size = 1000  # Size of the subset of colours for testing
+test_size = 5  # Size of the subset of colours for testing
 test_colours = colours[0:test_size]  # list of colours for testing
 
 # permutation is simply order of elements to be chosen I.E 0, 1, 4, 5. could change to 0, 1, 2, 3 for testing
 permutation = random.sample(range(test_size),
                             test_size)  # produces random pemutation of lenght test_size, from the numbers 0 to test_size -1
-plot_colours(test_colours, permutation)
+#plot_colours(test_colours, permutation)
 
-print(colours)
-print(calculate_distance(colours[1], colours[0]))
-print(local_optima(colours))
+
+def random_hill_climbing():
+
+    random_sol = []
+
+    for i in range(len(test_colours)):
+        random_sol.append(test_colours[permutation[i]])
+
+    best_distance = evaluate(random_sol)
+    print(best_distance)
+
+    sol = random_sol.copy()
+
+    while not local_optima(sol):
+
+        neighbour = random_neighbour(sol)
+
+        neighbour_distance = evaluate(neighbour)
+
+        if neighbour_distance < best_distance:
+
+            sol = neighbour
+            best_distance = neighbour_distance
+
+    return sol
+
+
+
+random_hill_climbing()
+
