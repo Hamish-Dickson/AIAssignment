@@ -48,8 +48,8 @@ def calculate_distance(colour1, colour2):
 def evaluate(solution):
     total_distance = 0
 
-    for i in range(0, len(solution)-1):
-        total_distance += calculate_distance(solution[i], solution[i+1])
+    for i in range(0, len(solution) - 1):
+        total_distance += calculate_distance(solution[i], solution[i + 1])
 
     return total_distance
 
@@ -63,14 +63,14 @@ def local_optima(solution):
 
     is_optima = True
 
-    for i in range(0, len(solution)):
+    for i in range(0, len(solution) - 1):
         # assign temp vars to hold array contents to perform switch
         temp_first = neighbour[i].copy()
-        temp_second = neighbour[i+1].copy()
+        temp_second = neighbour[i + 1].copy()
 
         # switch values in array
         neighbour[i] = temp_second
-        neighbour[i+1] = temp_first
+        neighbour[i + 1] = temp_first
 
         # if the created neighbour has less distance than the original solution, the local optima has not been found
         if evaluate(neighbour) < original_distance:
@@ -80,6 +80,19 @@ def local_optima(solution):
         neighbour = original.copy()
 
     return is_optima
+
+
+def random_neighbour(solution):
+    neighbour = solution.copy()
+    position_to_flip = random.randint(0, len(solution) - 1)
+
+    temp_first = neighbour[position_to_flip].copy()
+    temp_second = neighbour[position_to_flip + 1].copy()
+
+    neighbour[position_to_flip] = temp_second
+    neighbour[position_to_flip + 1] = temp_first
+
+    return neighbour
 
 
 #####_______main_____######
