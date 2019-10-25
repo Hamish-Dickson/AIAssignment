@@ -48,11 +48,38 @@ def calculate_distance(colour1, colour2):
 def evaluate(solution):
     total_distance = 0
 
-    for i in range(0, len(solution)):
+    for i in range(0, len(solution)-1):
         total_distance += calculate_distance(solution[i], solution[i+1])
 
     return total_distance
 
+
+def local_optima(solution):
+    original = solution.copy()
+
+    original_distance = evaluate(original)
+
+    neighbour = solution.copy()
+
+    is_optima = True
+
+    for i in range(0, len(solution)):
+        # assign temp vars to hold array contents to perform switch
+        temp_first = neighbour[i].copy()
+        temp_second = neighbour[i+1].copy()
+
+        # switch values in array
+        neighbour[i] = temp_second
+        neighbour[i+1] = temp_first
+
+        # if the created neighbour has less distance than the original solution, the local optima has not been found
+        if evaluate(neighbour) < original_distance:
+            is_optima = False
+            break
+
+        neighbour = original.copy()
+
+    return is_optima
 
 
 #####_______main_____######
@@ -73,3 +100,4 @@ plot_colours(test_colours, permutation)
 
 print(colours)
 print(calculate_distance(colours[1], colours[0]))
+print(local_optima(colours))
