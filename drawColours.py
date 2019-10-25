@@ -44,8 +44,7 @@ def calculate_distance(colour1, colour2):
                   + ((float(colour2[2]) - float(colour1[2])) ** 2))
     return d
 
-def hill_climbing():
-    
+
 
 
 #####_______main_____######
