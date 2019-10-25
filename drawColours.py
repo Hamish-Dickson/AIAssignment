@@ -45,6 +45,14 @@ def calculate_distance(colour1, colour2):
     return d
 
 
+def evaluate(solution):
+    total_distance = 0
+
+    for i in range(0, len(solution)):
+        total_distance += calculate_distance(solution[i], solution[i+1])
+
+    return total_distance
+
 
 
 #####_______main_____######
@@ -55,9 +63,10 @@ os.chdir(dir_path)  # Change the working directory so we can read the file
 
 ncolors, colours = read_file('colours.txt')  # Total number of colours and list of colours
 
-test_size = 100  # Size of the subset of colours for testing
+test_size = 1000  # Size of the subset of colours for testing
 test_colours = colours[0:test_size]  # list of colours for testing
 
+# permutation is simply order of elements to be chosen I.E 0, 1, 4, 5. could change to 0, 1, 2, 3 for testing
 permutation = random.sample(range(test_size),
                             test_size)  # produces random pemutation of lenght test_size, from the numbers 0 to test_size -1
 plot_colours(test_colours, permutation)
