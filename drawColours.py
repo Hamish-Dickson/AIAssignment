@@ -10,7 +10,7 @@ import copy
 # Reads the file  of colours
 # Returns the number of colours in the file and a list with the colours (RGB) values
 
-def read_file(fname):
+'''def read_file(fname):
     with open(fname, 'r') as afile:
         lines = afile.readlines()
     n = int(lines[3])  # number of colours  in the file
@@ -19,7 +19,24 @@ def read_file(fname):
     for l in lines:
         rgb = l.split()
         col.append(rgb)
+    return n, col'''
+
+def read_file(fname):
+    with open(fname, 'r') as afile:
+        lines = afile.readlines()
+    n = int(lines[3])  # number of colours  in the file
+    col = []
+    lines = lines[4:]  # colors as rgb values
+    rgb = []
+    for l in lines:
+        rgb = l.split()
+
+        for i in range(len(rgb)):
+            rgb[i] = float(rgb[i])
+
+        col.append(rgb)
     return n, col
+
 
 
 # Display the colours in the order of the permutation in a pyplot window
@@ -41,8 +58,8 @@ def plot_colours(col, perm):
 
 
 def calculate_distance(colour1, colour2):
-    d = math.sqrt(((float(colour2[0]) - float(colour1[0])) ** 2) + ((float(colour2[1]) - float(colour1[1])) ** 2)
-                  + ((float(colour2[2]) - float(colour1[2])) ** 2))
+    d = math.sqrt(((colour2[0] - colour1[0]) ** 2) + ((colour2[1] - colour1[1]) ** 2)
+                  + ((colour2[2] - colour1[2]) ** 2))
     return d
 
 
@@ -94,18 +111,29 @@ def random_neighbour(solution):
         position_to_flip = random.randint(0, len(solution[0]) - 2)
         position_to_flip2 = random.randint(0, len(solution[0]) - 2)
 
+    if position_to_flip < position_to_flip2:
+        neighbour[0][position_to_flip:position_to_flip2 + 1] = reversed(
+            neighbour[0][position_to_flip:position_to_flip2 + 1])
+        neighbour[1][position_to_flip:position_to_flip2 + 1] = reversed(
+            neighbour[1][position_to_flip:position_to_flip2 + 1])
+    else:
+        neighbour[0][position_to_flip2:position_to_flip + 1] = reversed(
+            neighbour[0][position_to_flip2:position_to_flip + 1])
+        neighbour[1][position_to_flip2:position_to_flip + 1] = reversed(
+            neighbour[1][position_to_flip2:position_to_flip + 1])
+
     # IS COPY NEEDED FOR THE NEXT 4 LINES?*******************************************************************************
-    temp_first_col = copy.deepcopy(neighbour[0][position_to_flip])
-    temp_second_col = copy.deepcopy(neighbour[0][position_to_flip2])
+    # temp_first_col = copy.deepcopy(neighbour[0][position_to_flip])
+    # temp_second_col = copy.deepcopy(neighbour[0][position_to_flip2])
 
-    temp_first_perm = copy.deepcopy(neighbour[1][position_to_flip])
-    temp_second_perm = copy.deepcopy(neighbour[1][position_to_flip2])
+    # temp_first_perm = copy.deepcopy(neighbour[1][position_to_flip])
+    # temp_second_perm = copy.deepcopy(neighbour[1][position_to_flip2])
 
-    neighbour[0][position_to_flip] = temp_second_col
-    neighbour[0][position_to_flip2] = temp_first_col
+    # neighbour[0][position_to_flip] = temp_second_col
+    # neighbour[0][position_to_flip2] = temp_first_col
 
-    neighbour[1][position_to_flip] = temp_second_perm
-    neighbour[1][position_to_flip2] = temp_first_perm
+    # neighbour[1][position_to_flip] = temp_second_perm
+    # neighbour[1][position_to_flip2] = temp_first_perm
 
     return neighbour
 
@@ -118,7 +146,7 @@ os.chdir(dir_path)  # Change the working directory so we can read the file4-----
 
 ncolors, colours = read_file('colours.txt')  # Total number of colours and list of colours
 
-test_size = 1000  # Size of the subset of colours for testing
+test_size = 250  # Size of the subset of colours for testing
 test_colours = colours[0:test_size]  # list of colours for testing
 
 permutation = random.sample(range(test_size),
@@ -163,9 +191,9 @@ def random_hill_climbing(num):
 
             best_distance = neighbour_distance
 
-            # print("New Permutation:", sol[1])
-            # print("New Distance:", evaluate(sol))
-            # print("New Sol:", sol)
+            #print("New Permutation:", sol[1])
+            #print("New Distance:", evaluate(sol))
+            #print("New Sol:", sol)
 
         k += 1
 
@@ -178,7 +206,7 @@ def multi_hill_climb(iter):
     best_sol = []
 
     for i in range(iter):
-        sol.append(random_hill_climbing(1500))
+        sol.append(random_hill_climbing(10000))
 
     k = evaluate(sol[0])
 
@@ -198,7 +226,6 @@ def multi_hill_climb(iter):
 
     print("Best Sol:", evaluate(best_sol))
 
-
 # solution2 = random_hill_climbing(5000)
 
 # print("Final Permutation:", solution2[1])
@@ -207,10 +234,6 @@ def multi_hill_climb(iter):
 
 # plot_colours(test_colours, solution2[1])
 
-# multi_hill_climb(20)
+multi_hill_climb(30)
 
-a = [1, 2, 9, 6, 5, 3, 1, 4, 6, 7]
-i = 2  # reverse from this index position
-j = 6  # reverse until this index position (included)
-a[i:j + 1] = reversed(a[i:j + 1])
-print(a)  # [1, 2, 5, 6, 9]
+
