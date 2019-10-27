@@ -146,13 +146,116 @@ os.chdir(dir_path)  # Change the working directory so we can read the file4-----
 
 ncolors, colours = read_file('colours.txt')  # Total number of colours and list of colours
 
-test_size = 250  # Size of the subset of colours for testing
+test_size = 100  # Size of the subset of colours for testing
 test_colours = colours[0:test_size]  # list of colours for testing
 
 permutation = random.sample(range(test_size),
                             test_size)  # produces random pemutation of lenght test_size, from the numbers 0 to test_size -1
 
-plot_colours(test_colours, permutation)
+#plot_colours(test_colours, permutation)
+
+
+
+
+def solve():
+
+    random_cols = []
+
+    # permutation is simply order of elements to be chosen I.E 0, 1, 4, 5. could change to 0, 1, 2, 3 for testing
+    permutation = random.sample(range(test_size),
+                                test_size)  # produces random pemutation of lenght test_size, from the numbers 0 to test_size -1
+
+    for i in range(len(test_colours)):
+        random_cols.append(test_colours[permutation[i]])
+
+    random_sol = [random_cols, permutation]
+
+    plot_colours(test_colours, random_sol[1])
+
+    temp_space = 0
+
+    for j in range(len(random_sol[0])-1):
+
+        print(random_sol[1])
+
+        smaller_found = False
+        smallest_dist = calculate_distance(random_sol[0][j], random_sol[0][j+1])
+
+        for k in range(j+2, len(random_sol[0])):
+
+            dist = calculate_distance(random_sol[0][j], random_sol[0][k])
+
+            print("J:",j,"K:",k)
+
+            if dist < smallest_dist:
+
+                smallest_dist = dist
+                smaller_found = True
+
+                temp_space = k
+                temp_col2 = random_sol[0][k]
+                temp_perm2 = random_sol[1][k]
+
+        if smaller_found:
+            temp_col1 = random_sol[0][j + 1]
+            temp_perm1 = random_sol[1][j + 1]
+
+            random_sol[0][j + 1] = temp_col2
+            random_sol[0][temp_space] = temp_col1
+
+            random_sol[1][j + 1] = temp_perm2
+            random_sol[1][temp_space] = temp_perm1
+
+    print("total distance", evaluate(random_sol))
+
+    plot_colours(test_colours, random_sol[1])
+
+    return random_sol
+
+
+def solve2(random_sol):
+
+    plot_colours(test_colours, random_sol[1])
+
+    random_sol[0].reverse()
+    random_sol[1].reverse()
+
+    temp_space = 0
+
+    for j in range(len(random_sol[0])-1):
+
+        smaller_found = False
+        smallest_dist = calculate_distance(random_sol[0][j], random_sol[0][j+1])
+
+        for k in range(j+2, len(random_sol[0])):
+
+            dist = calculate_distance(random_sol[0][j], random_sol[0][k])
+
+            if dist < smallest_dist:
+
+                smallest_dist = dist
+                smaller_found = True
+
+                temp_space = k
+                temp_col2 = random_sol[0][k]
+                temp_perm2 = random_sol[1][k]
+
+        if smaller_found:
+            temp_col1 = random_sol[0][j + 1]
+            temp_perm1 = random_sol[1][j + 1]
+
+            random_sol[0][j + 1] = temp_col2
+            random_sol[0][temp_space] = temp_col1
+
+            random_sol[1][j + 1] = temp_perm2
+            random_sol[1][temp_space] = temp_perm1
+
+    print("total distance", evaluate(random_sol))
+
+    plot_colours(test_colours, random_sol[1])
+
+    return random_sol
+
 
 
 def random_hill_climbing(num):
@@ -166,6 +269,10 @@ def random_hill_climbing(num):
         random_cols.append(test_colours[permutation[i]])
 
     random_sol = [random_cols, permutation]
+
+    # TESTING USING GREEDY AS STARTING POINT
+    #random_sol = solve()
+
     print("Initial Permutation:", random_sol[1])
 
     print("Initial:", random_sol)
@@ -191,9 +298,9 @@ def random_hill_climbing(num):
 
             best_distance = neighbour_distance
 
-            #print("New Permutation:", sol[1])
-            #print("New Distance:", evaluate(sol))
-            #print("New Sol:", sol)
+            # print("New Permutation:", sol[1])
+            # print("New Distance:", evaluate(sol))
+            # print("New Sol:", sol)
 
         k += 1
 
@@ -206,8 +313,9 @@ def multi_hill_climb(iter):
     best_sol = []
 
     for i in range(iter):
-        sol.append(random_hill_climbing(10000))
+        sol.append(random_hill_climbing(2000))
 
+    best_sol = sol[0]
     k = evaluate(sol[0])
 
     for j in range(len(sol)):
@@ -217,6 +325,8 @@ def multi_hill_climb(iter):
             k = evaluate(sol[j])
             best_sol = copy.deepcopy(sol[j])
 
+    print(sol[j])
+    print(best_sol)
     plot_colours(test_colours, best_sol[1])
 
     print(best_sol)
@@ -226,6 +336,8 @@ def multi_hill_climb(iter):
 
     print("Best Sol:", evaluate(best_sol))
 
+    return best_sol
+
 # solution2 = random_hill_climbing(5000)
 
 # print("Final Permutation:", solution2[1])
@@ -234,6 +346,10 @@ def multi_hill_climb(iter):
 
 # plot_colours(test_colours, solution2[1])
 
-multi_hill_climb(30)
+multi_hill_climb(20)
 
+solve()
 
+#Reversing and then re running the greedy algorithm
+#solve2(solve2(solve2(solve2(solve2(solve2(solve2(solve2(solve2(solve2(solve2(solve2(solve2(solve2(solve2(solve2(solve2(
+    #solve2(solve2(solve2(solve2(solve2(solve2(solve2(solve2(solve())))))))))))))))))))))))))
