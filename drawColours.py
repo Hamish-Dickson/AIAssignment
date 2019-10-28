@@ -45,19 +45,13 @@ def plot_colours(col, perm):
     plt.show()
 
 
+# calculates distance between 2 colours using euclidean distance formula
 def calculate_distance(colour1, colour2):
-    #return sqrt(((float(colour2[0]) - float(colour1[0])) ** 2) + ((float(colour2[1]) - float(colour1[1])) ** 2)
-     #           + ((float(colour2[2]) - float(colour1[2])) ** 2))
-
     return sqrt(((colour2[0] - colour1[0]) ** 2) + ((colour2[1] - colour1[1]) ** 2)
                 + ((colour2[2] - colour1[2]) ** 2))
 
 
-# return math.sqrt(((float(colour2[0]) - float(colour1[0])) * (float(colour2[0]) - float(colour1[0])))
-#                + ((float(colour2[1]) - float(colour1[1])) * (float(colour2[1]) - float(colour1[1])))
-#               + ((float(colour2[2]) - float(colour1[2])) * (float(colour2[2]) - float(colour1[2]))))
-
-
+# return the total distance between colours in a given solution
 def evaluate(solution):
     total_distance = 0
 
@@ -67,13 +61,14 @@ def evaluate(solution):
     return total_distance
 
 
+# experimental function to find if the provided solution is the local optima solution
 def local_optima(solution):
-    original = solution.copy()
+    original = solution.copy()  # assign and keep the original solution for later use
 
-    original_distance = evaluate(original)
+    original_distance = evaluate(original)  # evaluate the original solution
 
-    neighbour = solution.copy()
-    better_solution = solution.copy()
+    neighbour = solution.copy()  # create a copy of the current solution that can be mutated
+    better_solution = solution.copy()  # variable to hold the best variable found in neighbourhood if any
 
     is_optima = True
 
@@ -97,6 +92,7 @@ def local_optima(solution):
     return is_optima, better_solution
 
 
+# method to generate a random neighbouring solution
 def random_neighbour(solution, permutation):
     neighbour = solution.copy()
     perm = permutation.copy()
@@ -104,15 +100,17 @@ def random_neighbour(solution, permutation):
     first_position_to_flip = random.randint(0, len(solution) - 2)
     second_position_to_flip = random.randint(0, len(solution) - 2)
 
+    # assign temporary variables to hold for the flip operation
     temp_first = neighbour[first_position_to_flip].copy()
     temp_second = neighbour[second_position_to_flip].copy()
-    temp_permutaion_first = permutation[first_position_to_flip]
-    temp_permutaion_second = permutation[second_position_to_flip]
+    temp_permutation_first = permutation[first_position_to_flip]
+    temp_permutation_second = permutation[second_position_to_flip]
 
+    # perform the flip operations
     neighbour[first_position_to_flip] = temp_second
     neighbour[second_position_to_flip] = temp_first
-    perm[first_position_to_flip] = temp_permutaion_second
-    perm[second_position_to_flip] = temp_permutaion_first
+    perm[first_position_to_flip] = temp_permutation_second
+    perm[second_position_to_flip] = temp_permutation_first
 
     return neighbour, perm
 
@@ -136,6 +134,7 @@ permutation = random.sample(range(test_size),
 # plot_colours(test_colours, permutation)
 
 
+# method to perform a single random hill climb
 def random_hill_climbing():
     random_sol = []
 
@@ -143,37 +142,40 @@ def random_hill_climbing():
                                 test_size)
 
     for i in range(len(test_colours)):
-        random_sol.append(test_colours[permutation[i]])
+        random_sol.append(test_colours[permutation[i]])  # build the initial random solution
 
-    best_distance = evaluate(random_sol)
+    best_distance = evaluate(random_sol)  # calculate the distance of the initial solution
     # print("initial: ", best_distance)
 
     sol = random_sol.copy()
     curr_permutation = permutation.copy()
 
     while True:
-        is_optima, sol = local_optima(sol)
-        if is_optima:
+        is_optima, sol = local_optima(sol)  # get if the current solution is the optima, as well as any improved
+        # solution found
+        if is_optima:  # if the local optima has been found, exit the loop
             break
         else:
+            # create a new random neighbouring solution to test
             neighbour, curr_permutation = random_neighbour(sol, curr_permutation.copy())
 
+            # evaluate the newly created neighbour
             neighbour_distance = evaluate(neighbour)
 
+            # if the neighbouring solution has a better distance than the current best distance
             if neighbour_distance < best_distance:
                 sol = neighbour
                 best_distance = neighbour_distance
                 # print("new neighbour: ", best_distance)
 
-        # while not local_optima(sol):
-
     return sol, curr_permutation, evaluate(sol)
 
 
+# method to perform multiple hill climbs, taking in the number of tries to be attempted
 def multi_hill_climb(tries):
     distances = []
     best_sol = []
-    best_distance = 9999
+    best_distance = 9999999999  # random high value, since we are trying to find a minimum
     best_permutation = []
 
     for i in range(0, tries):
