@@ -63,58 +63,74 @@ def evaluate(solution):
     return total_distance
 
 
-# Iterates through each colour and finds the proceeding colour with the shortest distance between them and swaps it with
-# the colour next to itself
-def solve():
-    random_cols = []
+def generate_random_solution():
+    # Get the directory where the file is located
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    os.chdir(dir_path)  # Change the working directory so we can read the file4---------------------------------
+
+    ncolors, colours = read_file('colours.txt')  # Total number of colours and list of colours
+
+    test_size = 500  # Size of the subset of colours for testing
+    test_colours = colours[0:test_size]  # list of colours for testing
 
     # permutation is simply order of elements to be chosen I.E 0, 1, 4, 5. could change to 0, 1, 2, 3 for testing
     permutation = random.sample(range(test_size),
                                 test_size)  # produces random pemutation of lenght test_size, from the numbers 0 to test_size -1
+
+    random_cols = []
 
     # Creates and plots a random solution
     for i in range(len(test_colours)):
         random_cols.append(test_colours[permutation[i]])
 
     random_sol = [random_cols, permutation]
-    plot_colours(test_colours, random_sol[1])
+
+    return random_sol
+
+
+# Iterates through each colour and finds the proceeding colour with the shortest distance between them and swaps it with
+# the colour next to itself
+# Need to rearrange the colours to allow sorting, then revert back to the beginning solution but using the newly
+# ordered permutation
+def solve(start_solution):
+    sorted_solution = copy.deepcopy(start_solution)
+
+    sol = arrange_colours(sorted_solution)
 
     # The index where the current closest colour is stored
     temp_space = 0
 
-    for j in range(len(random_sol[0]) - 1):
+    for j in range(len(sorted_solution[0]) - 1):
 
         smaller_found = False
         # Finds the first distance to use as the starting point
-        smallest_dist = calculate_distance(random_sol[0][j], random_sol[0][j + 1])
+        smallest_dist = calculate_distance(sol[0][j], sol[0][j + 1])
 
-        for k in range(j + 2, len(random_sol[0])):
+        for k in range(j + 2, len(sorted_solution[0])):
 
-            dist = calculate_distance(random_sol[0][j], random_sol[0][k])
+            dist = calculate_distance(sol[0][j], sol[0][k])
 
             if dist < smallest_dist:
                 smallest_dist = dist
                 smaller_found = True
 
                 temp_space = k
-                temp_col2 = random_sol[0][k]
-                temp_perm2 = random_sol[1][k]
+                temp_col2 = sol[0][k]
+                temp_perm2 = sol[1][k]
 
         if smaller_found:
-            temp_col1 = random_sol[0][j + 1]
-            temp_perm1 = random_sol[1][j + 1]
+            temp_col1 = sol[0][j + 1]
+            temp_perm1 = sol[1][j + 1]
 
-            random_sol[0][j + 1] = temp_col2
-            random_sol[0][temp_space] = temp_col1
+            sol[0][j + 1] = temp_col2
+            sol[0][temp_space] = temp_col1
 
-            random_sol[1][j + 1] = temp_perm2
-            random_sol[1][temp_space] = temp_perm1
+            sol[1][j + 1] = temp_perm2
+            sol[1][temp_space] = temp_perm1
 
-    print("total distance", evaluate(random_sol))
+    sorted_solution[1] = sol[1]
 
-    plot_colours(test_colours, random_sol[1])
-
-    return random_sol
+    return sorted_solution
 
 
 # experimental function to find if the provided solution is the local optima solution
@@ -174,7 +190,8 @@ def random_neighbour(solution):
     return neighbour
 
 
-def random_neighbour_inversion(solution):
+# Calculates a random neighbour by reversing a random section of the list.
+def random_neighbour_ryan(solution):
     neighbour = copy.deepcopy(solution)
 
     position_to_flip = 0
@@ -186,14 +203,10 @@ def random_neighbour_inversion(solution):
 
     # If the first random number is less than the second random number
     if position_to_flip < position_to_flip2:
-        neighbour[0][position_to_flip:position_to_flip2 + 1] = reversed(
-            neighbour[0][position_to_flip:position_to_flip2 + 1])
         neighbour[1][position_to_flip:position_to_flip2 + 1] = reversed(
             neighbour[1][position_to_flip:position_to_flip2 + 1])
         # If the second random number is less that the first random number
     else:
-        neighbour[0][position_to_flip2:position_to_flip + 1] = reversed(
-            neighbour[0][position_to_flip2:position_to_flip + 1])
         neighbour[1][position_to_flip2:position_to_flip + 1] = reversed(
             neighbour[1][position_to_flip2:position_to_flip + 1])
 
@@ -240,16 +253,7 @@ def random_hill_climbing_local_optima():
 
 
 def random_hill_climbing(num):
-    random_cols = []
-
-    # permutation is simply order of elements to be chosen I.E 0, 1, 4, 5. could change to 0, 1, 2, 3 for testing
-    permutation = random.sample(range(test_size),
-                                test_size)  # produces random pemutation of lenght test_size, from the numbers 0 to test_size -1
-
-    for i in range(len(test_colours)):
-        random_cols.append(test_colours[permutation[i]])
-
-    random_sol = [random_cols, permutation]
+    random_sol = generate_random_solution()
 
     print("Initial Permutation:", random_sol[1])
 
@@ -258,13 +262,13 @@ def random_hill_climbing(num):
     best_distance = evaluate(random_sol)
     print("Initial Distance:", best_distance)
 
-    sol = copy.deepcopy(random_sol)
+    sol = solve(random_sol)
 
     k = 0
 
     while k < num:
 
-        neighbour = random_neighbour_inversion(sol)
+        neighbour = random_neighbour(sol)
 
         neighbour_distance = evaluate(neighbour)
 
@@ -305,7 +309,7 @@ def multi_hill_climb_ryan(iter):
     sol = []
 
     for i in range(iter):
-        sol.append(random_hill_climbing(2000))
+        sol.append(random_hill_climbing(50))
 
     best_sol = sol[0]
     k = evaluate(sol[0])
@@ -317,15 +321,212 @@ def multi_hill_climb_ryan(iter):
             k = evaluate(sol[j])
             best_sol = copy.deepcopy(sol[j])
 
-    print(sol[j])
-    print(best_sol)
-    plot_colours(test_colours, best_sol[1])
-
     print(best_sol)
 
     print("Best Sol:", evaluate(best_sol))
 
     return best_sol
+
+
+def organise_avg(start_solution):
+    sorted_solution = copy.deepcopy(start_solution)
+
+    sol = arrange_colours(sorted_solution)
+
+    avg_col = copy.deepcopy(sol[0])
+
+    for j in range(len(sol[0])):
+        avg_col[j] = sum(sol[0][j]) / len(sol[0][j])
+
+    for k in range(len(sol[0])):
+
+        for l in range(len(sol[0]) - k - 1):
+
+            if avg_col[l] > avg_col[l + 1]:
+                temp = avg_col[l]
+
+                avg_col[l] = avg_col[l + 1]
+                avg_col[l + 1] = temp
+
+                temp_perm = sol[1][l]
+
+                sol[1][l] = sol[1][l + 1]
+                sol[1][l + 1] = temp_perm
+
+    sorted_solution[1] = sol[1]
+
+    return sorted_solution
+
+
+def organise_red(start_solution):
+    sorted_solution = copy.deepcopy(start_solution)
+
+    sol = arrange_colours(sorted_solution)
+
+    avg_col = copy.deepcopy(sol[0])
+
+    for k in range(len(sol[0])):
+
+        for l in range(len(sol[0]) - k - 1):
+
+            if avg_col[l][0] < avg_col[l + 1][0]:
+                temp = avg_col[l][0]
+
+                avg_col[l][0] = avg_col[l + 1][0]
+                avg_col[l + 1][0] = temp
+
+                temp_perm = sol[1][l]
+
+                sol[1][l] = sol[1][l + 1]
+                sol[1][l + 1] = temp_perm
+
+    sorted_solution[1] = sol[1]
+
+    return sorted_solution
+
+
+def organise_green(start_solution):
+    sorted_solution = copy.deepcopy(start_solution)
+
+    sol = arrange_colours(sorted_solution)
+
+    avg_col = copy.deepcopy(sol[0])
+
+    for k in range(len(sol[0])):
+
+        for l in range(len(sol[0]) - k - 1):
+
+            if avg_col[l][1] < avg_col[l + 1][1]:
+                temp = avg_col[l][1]
+
+                avg_col[l][1] = avg_col[l + 1][1]
+                avg_col[l + 1][1] = temp
+
+                temp_perm = sol[1][l]
+
+                sol[1][l] = sol[1][l + 1]
+                sol[1][l + 1] = temp_perm
+
+    sorted_solution[1] = sol[1]
+
+    return sorted_solution
+
+
+def organise_blue(start_solution):
+    sorted_solution = copy.deepcopy(start_solution)
+
+    sol = arrange_colours(sorted_solution)
+
+    avg_col = copy.deepcopy(sol[0])
+
+    for k in range(len(sol[0])):
+
+        for l in range(len(sol[0]) - k - 1):
+
+            if avg_col[l][2] < avg_col[l + 1][2]:
+                temp = avg_col[l][2]
+
+                avg_col[l][2] = avg_col[l + 1][2]
+                avg_col[l + 1][2] = temp
+
+                temp_perm = sol[1][l]
+
+                sol[1][l] = sol[1][l + 1]
+                sol[1][l + 1] = temp_perm
+
+    sorted_solution[1] = sol[1]
+
+    return sorted_solution
+
+
+def organise_ratio_red(start_solution):
+    sorted_solution = copy.deepcopy(start_solution)
+
+    sol = arrange_colours(sorted_solution)
+
+    avg_col = copy.deepcopy(sol[0])
+
+    for j in range(len(sol[0])):
+        avg_col[j] = sol[0][j][0] / (sol[0][j][1] + sol[0][j][2])
+
+    for k in range(len(sol[0])):
+
+        for l in range(len(sol[0]) - k - 1):
+
+            if avg_col[l] < avg_col[l + 1]:
+                temp = avg_col[l]
+
+                avg_col[l] = avg_col[l + 1]
+                avg_col[l + 1] = temp
+
+                temp_perm = sol[1][l]
+
+                sol[1][l] = sol[1][l + 1]
+                sol[1][l + 1] = temp_perm
+
+    sorted_solution[1] = sol[1]
+
+    return sorted_solution
+
+
+def organise_ratio_green(start_solution):
+    sorted_solution = copy.deepcopy(start_solution)
+
+    sol = arrange_colours(sorted_solution)
+
+    avg_col = copy.deepcopy(sol[0])
+
+    for j in range(len(sol[0])):
+        avg_col[j] = sol[0][j][1] / (sol[0][j][0] + sol[0][j][2])
+
+    for k in range(len(sol[0])):
+
+        for l in range(len(sol[0]) - k - 1):
+
+            if avg_col[l] < avg_col[l + 1]:
+                temp = avg_col[l]
+
+                avg_col[l] = avg_col[l + 1]
+                avg_col[l + 1] = temp
+
+                temp_perm = sol[1][l]
+
+                sol[1][l] = sol[1][l + 1]
+                sol[1][l + 1] = temp_perm
+
+    sorted_solution[1] = sol[1]
+
+    return sorted_solution
+
+
+def organise_ratio_blue(start_solution):
+    sorted_solution = copy.deepcopy(start_solution)
+
+    sol = arrange_colours(sorted_solution)
+
+    avg_col = copy.deepcopy(sol[0])
+
+    for j in range(len(sol[0])):
+        avg_col[j] = sol[0][j][2] / (sol[0][j][0] + sol[0][j][1])
+
+    for k in range(len(sol[0])):
+
+        for l in range(len(sol[0]) - k - 1):
+
+            if avg_col[l] < avg_col[l + 1]:
+                temp = avg_col[l]
+
+                avg_col[l] = avg_col[l + 1]
+                avg_col[l + 1] = temp
+
+                temp_perm = sol[1][l]
+
+                sol[1][l] = sol[1][l + 1]
+                sol[1][l + 1] = temp_perm
+
+    sorted_solution[1] = sol[1]
+
+    return sorted_solution
 
 
 #####_______main_____######
@@ -347,3 +548,5 @@ multi_hill_climb(100)
 multi_hill_climb(1000)
 multi_hill_climb(5000)
 multi_hill_climb(25000)
+
+exit()
