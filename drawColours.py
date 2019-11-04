@@ -183,9 +183,6 @@ def random_neighbour_ryan(solution):
 
     return neighbour
 
-
-# plot_colours(test_colours, permutation)
-
 # method to perform a single random hill climb
 def random_hill_climbing_local_optima():
     solution = generate_random_solution()
@@ -473,6 +470,49 @@ def organise_ratio_blue(start_solution):
     return sorted_solution
 
 
+def loc_opt():
+
+    original = generate_random_solution()
+
+    best_distance = evaluate(original)
+
+    temp_pos1 = 0
+    temp_pos2 = 0
+    better_found = True
+
+    sol = original.copy()
+
+    while better_found:
+
+        better_found = False
+
+        for i in range(len(sol) - 1):
+
+            temp1 = sol[i]
+            temp2 = sol[i+1]
+
+            sol[i] = temp2
+            sol[i+1] = temp1
+
+            new_distance = evaluate(sol)
+
+            if new_distance < best_distance:
+                better_found = True
+                best_distance = new_distance
+                temp_pos1 = i
+                temp_pos2 = i + 1
+
+            sol = original.copy()
+
+        temp1 = sol[temp_pos1]
+        temp2 = sol[temp_pos2]
+
+        sol[temp_pos1] = temp2
+        sol[temp_pos2] = temp1
+
+    return sol
+
+
 #####_______main_____######
 
 # Get the directory where the file is located
@@ -481,7 +521,7 @@ os.chdir(dir_path)  # Change the working directory so we can read the file
 
 ncolors, colours = read_file('colours.txt')  # Total number of colours and list of colours
 
-test_size = 1000  # Size of the subset of colours for testing
+test_size = 100  # Size of the subset of colours for testing
 test_colours = colours[0:test_size]  # list of colours for testing
 
 # permutation is simply order of elements to be chosen I.E 0, 1, 4, 5. could change to 0, 1, 2, 3 for testing
@@ -523,4 +563,15 @@ print("ratio blue: ", evaluate(ratio_blue))
 # multi_hill_climb(5000)
 # multi_hill_climb(25000)
 
+opt = loc_opt()
+
+plot_colours(test_colours, opt)
+
+
+
+print("loc opt achieved", evaluate(opt))
+
+temp = local_optima(opt)
+
+print(temp[0], "Better solution found with distance:", evaluate(temp[1]))
 exit()
