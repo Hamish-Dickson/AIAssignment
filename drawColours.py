@@ -36,7 +36,7 @@ def read_file(fname):
 def plot_colours(col, perm):
     assert len(col) == len(perm)
 
-    ratio = 1  # ratio of line height/width, e.g. colour lines will have height 10 and width 1
+    ratio = 100  # ratio of line height/width, e.g. colour lines will have height 10 and width 1
     img = np.zeros((ratio, len(col), 3))
     for i in range(0, len(col)):
         img[:, i, :] = colours[perm[i]]
@@ -182,6 +182,7 @@ def random_neighbour_ryan(solution):
             neighbour[second_position_to_flip:first_position_to_flip + 1])
 
     return neighbour
+
 
 # method to perform a single random hill climb
 def random_hill_climbing_local_optima():
@@ -397,7 +398,7 @@ def organise_ratio_red(start_solution):
 
     for j in range(len(sorted_solution)):
         ratio_red_col[j] = test_colours[sorted_solution[j]][0] / (test_colours[sorted_solution[j]][1]
-                                                            + test_colours[sorted_solution[j]][2])
+                                                                  + test_colours[sorted_solution[j]][2])
 
     for k in range(len(sorted_solution)):
 
@@ -469,11 +470,11 @@ def organise_ratio_blue(start_solution):
 
     return sorted_solution
 
+
 # Calculates local optima by taking the best neighbour it can find by swapping adjacent indices
-def loc_opt():
+def loc_opt(sol):
 
-    sol = generate_random_solution()
-
+    print("hello",sol)
     best_distance = evaluate(sol)
 
     temp_pos1 = 0
@@ -487,10 +488,10 @@ def loc_opt():
         for i in range(len(sol) - 1):
 
             temp1 = sol[i]
-            temp2 = sol[i+1]
+            temp2 = sol[i + 1]
 
             sol[i] = temp2
-            sol[i+1] = temp1
+            sol[i + 1] = temp1
 
             new_distance = evaluate(sol)
 
@@ -512,9 +513,9 @@ def loc_opt():
 
     return sol
 
+
 # Calculates local optima by taking the best neighbour it can find by searching all possible neighbours
 def loc_opt2():
-
     sol = generate_random_solution()
 
     best_distance = evaluate(sol)
@@ -557,9 +558,9 @@ def loc_opt2():
 
     return sol
 
+
 # Calculates local optima by taking the first better neighbour it finds
 def loc_opt3():
-
     sol = generate_random_solution()
 
     best_distance = evaluate(sol)
@@ -606,6 +607,76 @@ def loc_opt3():
     return sol
 
 
+def hsl():
+    hsl = []
+
+    hue = 0
+
+    solution = generate_random_solution()
+
+    for i in range(len(solution)):
+
+        red = test_colours[solution[i]][0]
+        green = test_colours[solution[i]][1]
+        blue = test_colours[solution[i]][2]
+
+        min_value = min(test_colours[solution[i]])
+
+        max_index = test_colours[solution[i]].index(max(test_colours[solution[i]]))
+        max_value = max(test_colours[solution[i]])
+
+
+        # Calculating Lum and Sat
+        '''lum = (max_value + min_value) / 2
+
+        if max_value == min_value:
+            hue = 0
+        else:
+            if lum >= 0.5:
+                sat = (max_value - min_value) / (max_value + min_value)
+            else:
+                sat = (max_value - min_value) / (2 - max_value - min_value)'''
+
+        # One source said mod 6 and another didn't, mod 6 returns a better distance
+        if max_index == 0:
+            hue = ((green - blue) % 6)/(max_value - min_value)
+
+        if max_index == 1:
+            hue = 2 + (blue - red)/(max_value - min_value)
+
+        if max_index == 2:
+            hue = 4 + (red - green)/(max_value - min_value)
+
+        hue = hue * 60
+
+        if max_value == min_value:
+            hue = 0
+
+        if hue < 0:
+            hue += 360
+
+        hsl.append(hue)
+
+    for k in range(len(solution)):
+
+        for l in range(len(solution) - k - 1):
+
+            if hsl[l] > hsl[l + 1]:
+                temp = hsl[l]
+
+                hsl[l] = hsl[l + 1]
+                hsl[l + 1] = temp
+
+                temp_perm = solution[l]
+
+                solution[l] = solution[l + 1]
+                solution[l + 1] = temp_perm
+
+    print(hsl)
+
+    return solution
+
+
 #####_______main_____######
 
 # Get the directory where the file is located
@@ -614,14 +685,14 @@ os.chdir(dir_path)  # Change the working directory so we can read the file
 
 ncolors, colours = read_file('colours.txt')  # Total number of colours and list of colours
 
-test_size = 5  # Size of the subset of colours for testing
+test_size = 1000  # Size of the subset of colours for testing
 test_colours = colours[0:test_size]  # list of colours for testing
 
 # permutation is simply order of elements to be chosen I.E 0, 1, 4, 5. could change to 0, 1, 2, 3 for testing
 permutation = random.sample(range(test_size),
                             test_size)  # produces random pemutation of lenght test_size, from the numbers 0 to test_size -1
 
-test = generate_random_solution()
+'''test = generate_random_solution()
 # random_hill_climbing(1000)
 # multi_hill_climb_ryan(20)
 # multi_hill_climb(20)
@@ -668,6 +739,16 @@ opt3 = loc_opt3()
 plot_colours(test_colours, opt3)
 print("loc opt3 achieved", evaluate(opt3))
 
-print(local_optima(opt3))
+print(local_optima(opt3))'''
+test = hsl()
+plot_colours(test_colours, test)
+
+print("hsl achieved:",evaluate(test))
+
+opt = loc_opt(test)
+plot_colours(test_colours, opt)
+print("loc opt achieved", evaluate(opt))
+
+
 
 exit()
