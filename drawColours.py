@@ -474,7 +474,6 @@ def organise_ratio_blue(start_solution):
 # Calculates local optima by taking the best neighbour it can find by swapping adjacent indices
 def loc_opt(sol):
 
-    print("hello",sol)
     best_distance = evaluate(sol)
 
     temp_pos1 = 0
@@ -516,6 +515,7 @@ def loc_opt(sol):
 
 # Calculates local optima by taking the best neighbour it can find by searching all possible neighbours
 def loc_opt2():
+
     sol = generate_random_solution()
 
     best_distance = evaluate(sol)
@@ -561,9 +561,12 @@ def loc_opt2():
 
 # Calculates local optima by taking the first better neighbour it finds
 def loc_opt3():
-    sol = generate_random_solution()
+
+    sol = solve(generate_random_solution())
 
     best_distance = evaluate(sol)
+
+    print(best_distance)
 
     temp_pos1 = 0
     temp_pos2 = 0
@@ -604,6 +607,8 @@ def loc_opt3():
             sol[temp_pos1] = temp2
             sol[temp_pos2] = temp1
 
+            print(best_distance)
+
     return sol
 
 
@@ -639,7 +644,7 @@ def hsl():
 
         # One source said mod 6 and another didn't, mod 6 returns a better distance
         if max_index == 0:
-            hue = ((green - blue) % 6)/(max_value - min_value)
+            hue = ((green - blue))/(max_value - min_value)
 
         if max_index == 1:
             hue = 2 + (blue - red)/(max_value - min_value)
@@ -672,9 +677,32 @@ def hsl():
                 solution[l] = solution[l + 1]
                 solution[l + 1] = temp_perm
 
-    print(hsl)
+    print(hsl[30])
 
     return solution
+
+
+def iterator(num):
+
+    #Choose starting solution
+    best_sol = loc_opt(hsl())
+
+    it = 0
+
+    while it < num:
+
+        temp_sol = random_neighbour(best_sol)
+
+        temp_sol2 = loc_opt(temp_sol)
+
+        if evaluate(temp_sol2) < evaluate(best_sol):
+            best_sol = temp_sol2
+
+        it +=1
+
+    return best_sol
+
+
 
 
 #####_______main_____######
@@ -740,15 +768,25 @@ plot_colours(test_colours, opt3)
 print("loc opt3 achieved", evaluate(opt3))
 
 print(local_optima(opt3))'''
-test = hsl()
+
+
+'''test = hsl()
 plot_colours(test_colours, test)
 
 print("hsl achieved:",evaluate(test))
 
-opt = loc_opt(test)
+opt = loc_opt3()
 plot_colours(test_colours, opt)
-print("loc opt achieved", evaluate(opt))
+print("loc opt achieved", evaluate(opt))'''
 
+test = hsl()
+
+plot_colours(test_colours, test)
+
+#WTF?//TODO
+print(test_colours[test[30]])
+print(test_colours[test[30]])
+print(test_colours[test[30]])
 
 
 exit()
