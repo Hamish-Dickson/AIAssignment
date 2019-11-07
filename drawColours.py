@@ -5,7 +5,7 @@ import numpy as np
 import random
 import os
 import copy
-
+import statistics as st
 from math import sqrt
 
 
@@ -212,12 +212,17 @@ def random_hill_climbing_local_optima():
 
 
 def random_hill_climbing(num):
-    random_sol = generate_random_solution()
+
+    results = []
+
+    random_sol = solve(generate_random_solution())
 
     print("Initial Permutation:", random_sol)
 
     best_distance = evaluate(random_sol)
     print("Initial Distance:", best_distance)
+
+    results.append(best_distance)
 
     solution = random_sol.copy()
 
@@ -239,8 +244,18 @@ def random_hill_climbing(num):
             # print("New Sol:", sol)
 
         iteration += 1
+
+        results.append(best_distance)
     print("Final distance: ", best_distance)
-    # plot_colours(test_colours, solution)
+
+    plt.title('Hill Climbing Algorithm')
+    plt.xlabel('Iteration')
+    plt.ylabel('Total Distance')
+    plt.plot(results)
+    plt.show()
+
+    plot_colours(test_colours, solution)
+
     return solution, evaluate(solution)
 
 
@@ -264,6 +279,7 @@ def multi_hill_climb(tries):
 
 def multi_hill_climb_ryan(iter):
     solutions = []
+    results = []
 
     for i in range(iter):
         solutions.append(random_hill_climbing(2000)[0])
@@ -273,10 +289,19 @@ def multi_hill_climb_ryan(iter):
     k = evaluate(solutions[0])
 
     for j in range(len(solutions)):
-        print(solutions[j])
+        # To calculate mean, median and sd
+        results.append(evaluate(solutions[j]))
         if evaluate(solutions[j]) < k:
             k = evaluate(solutions[j])
             best_sol = copy.deepcopy(solutions[j])
+
+    mean = sum(results)/len(results)
+    median = st.median(results)
+    standard_dev = st.pstdev(results)
+
+    print("Mean:", mean)
+    print("Median:", median)
+    print("Standard Deviation", standard_dev)
 
     print(best_sol)
 
@@ -677,7 +702,6 @@ def hsl():
                 solution[l] = solution[l + 1]
                 solution[l + 1] = temp_perm
 
-    print(hsl[30])
 
     return solution
 
@@ -703,8 +727,6 @@ def iterator(num):
     return best_sol
 
 
-
-
 #####_______main_____######
 
 # Get the directory where the file is located
@@ -719,6 +741,11 @@ test_colours = colours[0:test_size]  # list of colours for testing
 # permutation is simply order of elements to be chosen I.E 0, 1, 4, 5. could change to 0, 1, 2, 3 for testing
 permutation = random.sample(range(test_size),
                             test_size)  # produces random pemutation of lenght test_size, from the numbers 0 to test_size -1
+
+
+random_hill_climbing(1000000)
+#multi_hill_climb_ryan(30)
+
 
 '''test = generate_random_solution()
 # random_hill_climbing(1000)
@@ -779,14 +806,31 @@ opt = loc_opt3()
 plot_colours(test_colours, opt)
 print("loc opt achieved", evaluate(opt))'''
 
+a = generate_random_solution()
+
+ind = a.index(893)
+
+print(a)
+print(ind)
+
+teste = test_colours[a[ind]]
+
+print("teste",teste)
+
 test = hsl()
 
 plot_colours(test_colours, test)
 
 #WTF?//TODO
+print(test_colours[test[17]])
 print(test_colours[test[30]])
 print(test_colours[test[30]])
-print(test_colours[test[30]])
+
+#THIS IS 30?!?!
+print(test[39])
+print(test)
+
+print(test[0])
 
 
 exit()
