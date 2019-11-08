@@ -36,7 +36,7 @@ def read_file(fname):
 def plot_colours(col, perm):
     assert len(col) == len(perm)
 
-    ratio = 100  # ratio of line height/width, e.g. colour lines will have height 10 and width 1
+    ratio = 50  # ratio of line height/width, e.g. colour lines will have height 10 and width 1
     img = np.zeros((ratio, len(col), 3))
     for i in range(0, len(col)):
         img[:, i, :] = colours[perm[i]]
@@ -215,7 +215,7 @@ def random_hill_climbing(num):
 
     results = []
 
-    random_sol = solve(generate_random_solution())
+    random_sol = generate_random_solution()
 
     print("Initial Permutation:", random_sol)
 
@@ -743,7 +743,7 @@ permutation = random.sample(range(test_size),
                             test_size)  # produces random pemutation of lenght test_size, from the numbers 0 to test_size -1
 
 
-random_hill_climbing(1000000)
+random_hill_climbing(10)
 #multi_hill_climb_ryan(30)
 
 
