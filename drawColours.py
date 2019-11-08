@@ -8,6 +8,9 @@ import copy
 import statistics as st
 from math import sqrt
 
+from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
+                               AutoMinorLocator)
+
 
 # Reads the file  of colours
 # Returns the number of colours in the file and a list with the colours (RGB) values
@@ -36,7 +39,7 @@ def read_file(fname):
 def plot_colours(col, perm):
     assert len(col) == len(perm)
 
-    ratio = 50  # ratio of line height/width, e.g. colour lines will have height 10 and width 1
+    ratio = 100  # ratio of line height/width, e.g. colour lines will have height 10 and width 1
     img = np.zeros((ratio, len(col), 3))
     for i in range(0, len(col)):
         img[:, i, :] = colours[perm[i]]
@@ -44,6 +47,8 @@ def plot_colours(col, perm):
     fig, axes = plt.subplots(1, figsize=(8, 4))  # figsize=(width,height) handles window dimensions
     axes.imshow(img, interpolation='nearest')
     axes.axis('off')
+
+    plt.savefig('g.png')
     plt.show()
 
 
@@ -217,6 +222,8 @@ def random_hill_climbing(num):
 
     random_sol = generate_random_solution()
 
+    new_plot2(random_sol)
+
     print("Initial Permutation:", random_sol)
 
     best_distance = evaluate(random_sol)
@@ -254,7 +261,7 @@ def random_hill_climbing(num):
     plt.plot(results)
     plt.show()
 
-    plot_colours(test_colours, solution)
+    #plot_colours(test_colours, solution)
 
     return solution, evaluate(solution)
 
@@ -727,6 +734,67 @@ def iterator(num):
     return best_sol
 
 
+def convert(colour):
+
+    converted = []
+
+    for i in range(len(colour)):
+
+        converted.append(colour[i]*255)
+
+    print("rgb:",converted)
+
+def generate_random_solution_temp():
+
+    solution = []
+
+    for i in range(1000):
+        solution.append(i)
+
+    return solution
+
+def new_plot(perm):
+    cols = []
+    colours = []
+
+    for i in range(1000):
+        cols.append(i)
+        colours.append([test_colours[perm[i]][0], test_colours[perm[i]][1], test_colours[perm[i]][2]])
+
+    plt.figure(figsize=(10,10))
+
+    plt.bar(cols, height=100, width=0.5, bottom=500, color=colours)
+    plt.axis('square')
+    plt.axis('off')
+
+    plt.show()
+
+
+def new_plot2(perm):
+    colours = []
+    cols = []
+
+    for i in range(1000):
+        colours.append([test_colours[perm[i]][0], test_colours[perm[i]][1], test_colours[perm[i]][2]])
+
+    cols.append(colours)
+
+
+
+    fig, axes = plt.subplots(1, 1, figsize=(100, 10), dpi=100)
+
+    print("colours:",cols)
+
+    axes.imshow(cols, interpolation='none', aspect='auto', origin='upper')
+    axes.axis('off')
+    plt.savefig('plot.png')
+    plt.tight_layout()
+    plt.show()
+
+
+
+
+
 #####_______main_____######
 
 # Get the directory where the file is located
@@ -742,8 +810,7 @@ test_colours = colours[0:test_size]  # list of colours for testing
 permutation = random.sample(range(test_size),
                             test_size)  # produces random pemutation of lenght test_size, from the numbers 0 to test_size -1
 
-
-random_hill_climbing(10)
+#random_hill_climbing(10)
 #multi_hill_climb_ryan(30)
 
 
@@ -796,41 +863,7 @@ print("loc opt3 achieved", evaluate(opt3))
 
 print(local_optima(opt3))'''
 
-
-'''test = hsl()
-plot_colours(test_colours, test)
-
-print("hsl achieved:",evaluate(test))
-
-opt = loc_opt3()
-plot_colours(test_colours, opt)
-print("loc opt achieved", evaluate(opt))'''
-
-a = generate_random_solution()
-
-ind = a.index(893)
-
-print(a)
-print(ind)
-
-teste = test_colours[a[ind]]
-
-print("teste",teste)
-
-test = hsl()
-
-plot_colours(test_colours, test)
-
-#WTF?//TODO
-print(test_colours[test[17]])
-print(test_colours[test[30]])
-print(test_colours[test[30]])
-
-#THIS IS 30?!?!
-print(test[39])
-print(test)
-
-print(test[0])
-
+test = random_hill_climbing(100000)[0]
+new_plot2(test)
 
 exit()
