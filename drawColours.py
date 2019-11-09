@@ -36,13 +36,13 @@ def read_file(fname):
 def plot_colours(col, perm):
     assert len(col) == len(perm)
 
-    ratio = 100  # ratio of line height/width, e.g. colour lines will have height 10 and width 1
+    ratio = 50  # ratio of line height/width, e.g. colour lines will have height 10 and width 1
     img = np.zeros((ratio, len(col), 3))
     for i in range(0, len(col)):
         img[:, i, :] = colours[perm[i]]
 
-    fig, axes = plt.subplots(1, figsize=(20, 10))  # figsize=(width,height) handles window dimensions
-    axes.imshow(img, interpolation='nearest', aspect='auto')
+    fig, axes = plt.subplots(1, figsize=(8, 4))  # figsize=(width,height) handles window dimensions
+    axes.imshow(img, interpolation='nearest')
     axes.axis('off')
     plt.savefig("plot.png")
     plt.show()
@@ -249,13 +249,13 @@ def random_hill_climbing(num):
         results.append(best_distance)
     print("Final distance: ", best_distance)
 
-    '''plt.title('Hill Climbing Algorithm')
+    plt.title('Hill Climbing Algorithm')
     plt.xlabel('Iteration')
     plt.ylabel('Total Distance')
     plt.plot(results)
     plt.show()
 
-    plot_colours(test_colours, solution)'''
+    plot_colours(test_colours, solution)
 
     return solution, evaluate(solution)
 
@@ -737,6 +737,67 @@ def iterator(num):
         it +=1
 
     return best_sol
+
+
+def convert(colour):
+
+    converted = []
+
+    for i in range(len(colour)):
+
+        converted.append(colour[i]*255)
+
+    print("rgb:",converted)
+
+def generate_random_solution_temp():
+
+    solution = []
+
+    for i in range(1000):
+        solution.append(i)
+
+    return solution
+
+def new_plot(perm):
+    cols = []
+    colours = []
+
+    for i in range(1000):
+        cols.append(i)
+        colours.append([test_colours[perm[i]][0], test_colours[perm[i]][1], test_colours[perm[i]][2]])
+
+    plt.figure(figsize=(10,10))
+
+    plt.bar(cols, height=100, width=0.5, bottom=500, color=colours)
+    plt.axis('square')
+    plt.axis('off')
+
+    plt.show()
+
+
+def new_plot2(perm):
+    colours = []
+    cols = []
+
+    for i in range(1000):
+        colours.append([test_colours[perm[i]][0], test_colours[perm[i]][1], test_colours[perm[i]][2]])
+
+    cols.append(colours)
+
+
+
+    fig, axes = plt.subplots(1, 1, figsize=(100, 10), dpi=100)
+
+    print("colours:",cols)
+
+    axes.imshow(cols, interpolation='none', aspect='auto', origin='upper')
+    axes.axis('off')
+    plt.savefig('plot.png')
+    plt.tight_layout()
+    plt.show()
+
+
+
 
 
 #####_______main_____######
