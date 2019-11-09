@@ -36,14 +36,15 @@ def read_file(fname):
 def plot_colours(col, perm):
     assert len(col) == len(perm)
 
-    ratio = 50  # ratio of line height/width, e.g. colour lines will have height 10 and width 1
+    ratio = 100  # ratio of line height/width, e.g. colour lines will have height 10 and width 1
     img = np.zeros((ratio, len(col), 3))
     for i in range(0, len(col)):
         img[:, i, :] = colours[perm[i]]
 
-    fig, axes = plt.subplots(1, figsize=(8, 4))  # figsize=(width,height) handles window dimensions
-    axes.imshow(img, interpolation='nearest')
+    fig, axes = plt.subplots(1, figsize=(20, 10))  # figsize=(width,height) handles window dimensions
+    axes.imshow(img, interpolation='nearest', aspect='auto')
     axes.axis('off')
+    plt.savefig("plot.png")
     plt.show()
 
 
@@ -248,13 +249,13 @@ def random_hill_climbing(num):
         results.append(best_distance)
     print("Final distance: ", best_distance)
 
-    plt.title('Hill Climbing Algorithm')
+    '''plt.title('Hill Climbing Algorithm')
     plt.xlabel('Iteration')
     plt.ylabel('Total Distance')
     plt.plot(results)
     plt.show()
 
-    plot_colours(test_colours, solution)
+    plot_colours(test_colours, solution)'''
 
     return solution, evaluate(solution)
 
@@ -281,8 +282,13 @@ def multi_hill_climb_ryan(iter):
     solutions = []
     results = []
 
+    #for use when performing random multi-HC
     for i in range(iter):
-        solutions.append(random_hill_climbing(2000)[0])
+        solutions.append(random_hill_climbing(5000)[0])
+
+    #for use when performing pre-seeded multi-HC
+    '''for i in range(iter):
+        solutions.append(solve(generate_random_solution()))'''
 
     best_sol = solutions[0]
     print(best_sol)
@@ -306,6 +312,12 @@ def multi_hill_climb_ryan(iter):
     print(best_sol)
 
     print("Best Sol:", evaluate(best_sol))
+
+    plt.title('Pre Seeded Multi Hill Climbing Algorithm Using Nearest Neighbour')
+    plt.xlabel('Iteration')
+    plt.ylabel('Total Distance')
+    plt.plot(results)
+    plt.show()
 
     plot_colours(test_colours, best_sol)
 
@@ -743,7 +755,7 @@ permutation = random.sample(range(test_size),
                             test_size)  # produces random pemutation of lenght test_size, from the numbers 0 to test_size -1
 
 
-random_hill_climbing(10)
+# random_hill_climbing(10)
 #multi_hill_climb_ryan(30)
 
 
@@ -804,7 +816,7 @@ print("hsl achieved:",evaluate(test))
 
 opt = loc_opt3()
 plot_colours(test_colours, opt)
-print("loc opt achieved", evaluate(opt))'''
+print("loc opt achieved", evaluate(opt))
 
 a = generate_random_solution()
 
@@ -821,16 +833,21 @@ test = hsl()
 
 plot_colours(test_colours, test)
 
-#WTF?//TODO
-print(test_colours[test[17]])
-print(test_colours[test[30]])
-print(test_colours[test[30]])
+solve = solve(generate_random_solution())
+plot_colours(test_colours, solve)
 
-#THIS IS 30?!?!
-print(test[39])
-print(test)
+red = organise_ratio_red(generate_random_solution())
+plot_colours(test_colours, red)
 
-print(test[0])
+green = organise_ratio_green(generate_random_solution())
+plot_colours(test_colours, green)
 
+blue = organise_ratio_blue(generate_random_solution())
+plot_colours(test_colours, blue)
+
+random = random_hill_climbing(10000)
+plot_colours(test_colours, random[0])'''
+
+# multi_hill_climb_ryan(30)
 
 exit()
