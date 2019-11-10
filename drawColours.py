@@ -6,7 +6,6 @@ import copy
 import statistics as st
 from math import sqrt
 
-
 # Reads the file  of colours
 # Returns the number of colours in the file and a list with the colours (RGB) values
 def read_file(fname):
@@ -32,16 +31,16 @@ def read_file(fname):
 def plot_colours(col, perm):
     assert len(col) == len(perm)
 
-    ratio = 100  # ratio of line height/width, e.g. colour lines will have height 10 and width 1
+    ratio = 50  # ratio of line height/width, e.g. colour lines will have height 10 and width 1
     img = np.zeros((ratio, len(col), 3))
     for i in range(0, len(col)):
         img[:, i, :] = colours[perm[i]]
 
-    fig, axes = plt.subplots(1, figsize=(8, 4))  # figsize=(width,height) handles window dimensions
-    axes.imshow(img, interpolation='nearest')
+    fig, axes = plt.subplots(1, figsize=(20, 10))  # figsize=(width,height) handles window dimensions
+    axes.imshow(img, interpolation='nearest', aspect='auto')
     axes.axis('off')
+    plt.savefig("plot.png")
     plt.show()
-
 
 # Calculates distance between 2 colours using euclidean distance formula
 def calculate_distance(colour1, colour2):
@@ -54,6 +53,7 @@ def evaluate(solution):
     total_distance = 0
 
     for i in range(0, len(solution) - 1):
+        # print(colour_one, colour_two)
         total_distance += calculate_distance(test_colours[solution[i]], test_colours[solution[i + 1]])
 
     return total_distance
@@ -61,6 +61,7 @@ def evaluate(solution):
 
 # Generates a random solution (permutation of colours)
 def generate_random_solution():
+    # permutation is simply order of elements to be chosen I.E 0, 1, 4, 5. could change to 0, 1, 2, 3 for testing
     random_solution = random.sample(range(test_size),
                                     test_size)  # produces random pemutation of length test_size, from the numbers 0 to test_size -1
 
@@ -276,6 +277,7 @@ def multi_hill_climb_ryan(number_of_hillclimbs):
     solutions = []
     results = []
 
+    #TODO switch
     for i in range(number_of_hillclimbs):
         solutions.append(random_hill_climbing(2000)[0])
 
@@ -301,6 +303,12 @@ def multi_hill_climb_ryan(number_of_hillclimbs):
     print(best_sol)
 
     print("Best Sol:", evaluate(best_sol))
+
+    plt.title('Pre Seeded Multi Hill Climbing Algorithm Using Nearest Neighbour')
+    plt.xlabel('Iteration')
+    plt.ylabel('Total Distance')
+    plt.plot(results)
+    plt.show()
 
     plot_colours(test_colours, best_sol)
 
@@ -417,6 +425,18 @@ def hue():
 
         max_index = test_colours[solution[i]].index(max(test_colours[solution[i]]))
         max_value = max(test_colours[solution[i]])
+
+
+        # Calculating Lum and Sat
+        '''lum = (max_value + min_value) / 2
+
+        if max_value == min_value:
+            hue = 0
+        else:
+            if lum >= 0.5:
+                sat = (max_value - min_value) / (max_value + min_value)
+            else:
+                sat = (max_value - min_value) / (2 - max_value - min_value)'''
 
         # One source said mod 6 and another didn't, mod 6 returns a better distance
         if max_index == 0:
