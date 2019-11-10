@@ -36,17 +36,16 @@ def read_file(fname):
 def plot_colours(col, perm):
     assert len(col) == len(perm)
 
-    ratio = 50  # ratio of line height/width, e.g. colour lines will have height 10 and width 1
+    ratio = 50 # ratio of line height/width, e.g. colour lines will have height 10 and width 1
     img = np.zeros((ratio, len(col), 3))
     for i in range(0, len(col)):
         img[:, i, :] = colours[perm[i]]
 
-    fig, axes = plt.subplots(1, figsize=(8, 4))  # figsize=(width,height) handles window dimensions
-    axes.imshow(img, interpolation='nearest')
+    fig, axes = plt.subplots(1, figsize=(20, 10))  # figsize=(width,height) handles window dimensions
+    axes.imshow(img, interpolation='nearest', aspect='auto')
     axes.axis('off')
     plt.savefig("plot.png")
     plt.show()
-
 
 # calculates distance between 2 colours using euclidean distance formula
 def calculate_distance(colour1, colour2):
@@ -897,6 +896,13 @@ plot_colours(test_colours, test)
 solve = solve(generate_random_solution())
 plot_colours(test_colours, solve)
 
+'''
+hsl = hsl()
+plot_colours(test_colours, hsl)
+
+avg = organise_avg(generate_random_solution())
+plot_colours(test_colours, avg)
+
 red = organise_ratio_red(generate_random_solution())
 plot_colours(test_colours, red)
 
@@ -905,6 +911,9 @@ plot_colours(test_colours, green)
 
 blue = organise_ratio_blue(generate_random_solution())
 plot_colours(test_colours, blue)
+
+plot_colours(test_colours, solve(generate_random_solution()))
+'''
 
 random = random_hill_climbing(10000)
 plot_colours(test_colours, random[0])'''
