@@ -6,6 +6,8 @@ import copy
 import statistics as st
 from math import sqrt
 
+#TODO Write an introduction? Introduce that a solution is a permutation of the colours in the gile?
+
 # Reads the file  of colours
 # Returns the number of colours in the file and a list with the colours (RGB) values
 def read_file(fname):
@@ -314,100 +316,123 @@ def multi_hill_climb_ryan(number_of_hillclimbs):
 
     return best_sol
 
-
+# Organises the colours based on the average of their red, green and blue values
 def organise_avg():
     sorted_solution = generate_random_solution()
 
     avg_col = []
 
+    # Appends to avg_col the average of the red, green and blue values
     for j in range(len(sorted_solution)):
         avg_col.append(sum(test_colours[sorted_solution[j]]) / len(test_colours[sorted_solution[j]]))
 
+    # Sorts the list of averages and the solution
     sort(sorted_solution, avg_col)
 
     return sorted_solution
 
 
+#TODO make the following methods switches?
+
+# Organises the colours based on their red value
 def organise_red():
     sorted_solution = generate_random_solution()
 
     red_col = []
 
+    # Appends to red_col the red value of the colour
     for j in range(len(sorted_solution)):
         red_col.append(test_colours[sorted_solution[j]][0])
 
+    # Sorts the list of red values and the solution
     sort(sorted_solution, red_col)
 
     return sorted_solution
 
 
+# Organises the colours based on their green value
 def organise_green():
     sorted_solution = generate_random_solution()
 
     green_col = []
 
+    # Appends to green_col the green value of the colour
     for j in range(len(sorted_solution)):
         green_col.append(test_colours[sorted_solution[j]][1])
 
+    # Sorts the list of green values and the solution
     sort(sorted_solution, green_col)
 
     return sorted_solution
 
 
+# Organises the colours based on their blue value
 def organise_blue():
     sorted_solution = generate_random_solution()
 
     blue_col = []
 
+    # Appends to blue_col the green value of the colour
     for j in range(len(sorted_solution)):
         blue_col.append(test_colours[sorted_solution[j]][2])
 
+    # Sorts the list of blue values and the solution
     sort(sorted_solution, blue_col)
 
     return sorted_solution
 
 
+# Organises the colours based on how much red is present in relation to green + blue
 def organise_ratio_red():
     sorted_solution = generate_random_solution()
 
     ratio_red_col = []
 
+    # Appends to ratio_red_col the value of the ratio of red to green + blue
     for j in range(len(sorted_solution)):
         ratio_red_col.append(test_colours[sorted_solution[j]][0] / (test_colours[sorted_solution[j]][1]
                                                                     + test_colours[sorted_solution[j]][2]))
 
+    # Sorts the list of ratio values and the solution
     sort(sorted_solution, ratio_red_col)
 
     return sorted_solution
 
 
+# Organises the colours based on how much green is present in relation to red + blue
 def organise_ratio_green():
     sorted_solution = generate_random_solution()
 
     ratio_green_col = []
 
+    # Appends to ratio_green_col the value of the ratio of green to red + blue
     for j in range(len(sorted_solution)):
         ratio_green_col.append(test_colours[sorted_solution[j]][1] / (test_colours[sorted_solution[j]][0]
                                                                       + test_colours[sorted_solution[j]][2]))
 
+    # Sorts the list of ratio values and the solution
     sort(sorted_solution, ratio_green_col)
     return sorted_solution
 
 
+# Organises the colours based on how much blue is present in relation to red + green
 def organise_ratio_blue():
     sorted_solution = generate_random_solution()
 
     ratio_blue_col = []
 
+    # Appends to ratio_blue_col the value of the ratio of blue to red + green
     for j in range(len(sorted_solution)):
         ratio_blue_col.append(test_colours[sorted_solution[j]][2] / (test_colours[sorted_solution[j]][1]
                                                                      + test_colours[sorted_solution[j]][0]))
 
+    # Sorts the list of ratio values and the solution
     sort(sorted_solution, ratio_blue_col)
 
     return sorted_solution
 
 
+# Converts the rgb values of the colours the colours hue and is then sorted based on the hue
 def hue():
     hsl = []
 
@@ -426,19 +451,6 @@ def hue():
         max_index = test_colours[solution[i]].index(max(test_colours[solution[i]]))
         max_value = max(test_colours[solution[i]])
 
-
-        # Calculating Lum and Sat
-        '''lum = (max_value + min_value) / 2
-
-        if max_value == min_value:
-            hue = 0
-        else:
-            if lum >= 0.5:
-                sat = (max_value - min_value) / (max_value + min_value)
-            else:
-                sat = (max_value - min_value) / (2 - max_value - min_value)'''
-
-        # One source said mod 6 and another didn't, mod 6 returns a better distance
         if max_index == 0:
             hue = (green - blue) / (max_value - min_value)
 
@@ -453,17 +465,19 @@ def hue():
         if max_value == min_value:
             hue = 0
 
+        # As hue is measured between 0 and 360 degrees, if it is less than 0, 360 is added
         if hue < 0:
             hue += 360
 
         hsl.append(hue)
 
+    # The list of hue values is sorted and so is the solution
     sort(solution, hsl)
-    print(hsl)
+
     return solution
 
 
-def plot_ryan(perm, name):
+def plot_ryan(perm):
     colours = []
     cols = []
 
@@ -476,18 +490,19 @@ def plot_ryan(perm, name):
 
     axes.imshow(cols, interpolation='none', aspect='auto', origin='upper')
     axes.axis('off')
-    plt.savefig(name + '.png')
+    #plt.savefig(name + '.png')
     plt.tight_layout()
     plt.show()
 
 
+# A standard bubble sort
 def sort(solution, colour_list):
 
     for k in range(len(solution)):
 
         for l in range(len(solution) - k - 1):
 
-            if colour_list[l] < colour_list[l + 1]:
+            if colour_list[l] > colour_list[l + 1]:
                 temp = colour_list[l]
 
                 colour_list[l] = colour_list[l + 1]
@@ -514,5 +529,14 @@ test_colours = colours[0:test_size]  # list of colours for testing
 permutation = random.sample(range(test_size),
                             test_size)  # produces random pemutation of lenght test_size, from the numbers 0 to test_size -1
 
+plot_ryan(organise_avg())
+plot_ryan(organise_red())
+plot_ryan(organise_green())
+plot_ryan(organise_blue())
+plot_ryan(organise_ratio_red())
+plot_ryan(organise_ratio_green())
+plot_ryan(organise_ratio_blue())
+plot_ryan(hue())
+plot_ryan(nearest_neighbour(generate_random_solution()))
 
 exit()
