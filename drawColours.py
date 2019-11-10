@@ -1,5 +1,3 @@
-import math
-
 import matplotlib.pyplot as plt
 import numpy as np
 import random
@@ -8,13 +6,9 @@ import copy
 import statistics as st
 from math import sqrt
 
-from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
-                               AutoMinorLocator)
-
 
 # Reads the file  of colours
 # Returns the number of colours in the file and a list with the colours (RGB) values
-
 def read_file(fname):
     with open(fname, 'r') as afile:
         lines = afile.readlines()
@@ -35,7 +29,6 @@ def read_file(fname):
 # Display the colours in the order of the permutation in a pyplot window
 # Input, list of colours, and ordering  of colours.
 # They need to be of the same length
-
 def plot_colours(col, perm):
     assert len(col) == len(perm)
 
@@ -47,56 +40,56 @@ def plot_colours(col, perm):
     fig, axes = plt.subplots(1, figsize=(8, 4))  # figsize=(width,height) handles window dimensions
     axes.imshow(img, interpolation='nearest')
     axes.axis('off')
-
-    plt.savefig('g.png')
     plt.show()
 
 
-# calculates distance between 2 colours using euclidean distance formula
+# Calculates distance between 2 colours using euclidean distance formula
 def calculate_distance(colour1, colour2):
     return sqrt(((colour2[0] - colour1[0]) ** 2) + ((colour2[1] - colour1[1]) ** 2)
                 + ((colour2[2] - colour1[2]) ** 2))
 
 
-# return the total distance between colours in a given solution
+# Returns the total distance between colours in a given solution
 def evaluate(solution):
     total_distance = 0
 
     for i in range(0, len(solution) - 1):
-        # print(colour_one, colour_two)
         total_distance += calculate_distance(test_colours[solution[i]], test_colours[solution[i + 1]])
 
     return total_distance
 
 
+# Generates a random solution (permutation of colours)
 def generate_random_solution():
-    # permutation is simply order of elements to be chosen I.E 0, 1, 4, 5. could change to 0, 1, 2, 3 for testing
     random_solution = random.sample(range(test_size),
-                                    test_size)  # produces random pemutation of lenght test_size, from the numbers 0 to test_size -1
+                                    test_size)  # produces random pemutation of length test_size, from the numbers 0 to test_size -1
 
     return random_solution
 
 
 # Iterates through each colour and finds the proceeding colour with the shortest distance between them and swaps it with
 # the colour next to itself
-# Need to rearrange the colours to allow sorting, then revert back to the beginning solution but using the newly
-# ordered permutation
-def solve(start_solution):
+def nearest_neighbour(start_solution):
     sorted_solution = start_solution.copy()
 
     # The index where the current closest colour is stored
     temp_space = 0
 
+    # Has to have the -1 as we are checking j+1
     for j in range(len(sorted_solution) - 1):
 
         smaller_found = False
-        # Finds the first distance to use as the starting point
+        # Finds the distance between the starting colour and the colour next to it to use as the starting point
         smallest_dist = calculate_distance(test_colours[sorted_solution[j]], test_colours[sorted_solution[j + 1]])
 
+        # Uses j+2 as at the beginning of this iteration j+1 was already checked for the starting distance
         for k in range(j + 2, len(sorted_solution)):
 
             dist = calculate_distance(test_colours[sorted_solution[j]], test_colours[sorted_solution[k]])
 
+            # If the distance between the starting colour and the most recently checked colour is smaller than the
+            # previous smallest distance, it becomes the new smallest distance and the indices for the two colours are
+            # stored.
             if dist < smallest_dist:
                 smallest_dist = dist
                 smaller_found = True
@@ -104,6 +97,8 @@ def solve(start_solution):
                 temp_space = k
                 temp_pos2 = sorted_solution[k]
 
+        # Once the current beginning colour has gone through all colours after it, if a smaller distance was found than
+        # the one it started with, the indices are swapped
         if smaller_found:
             temp_pos1 = sorted_solution[j + 1]
 
@@ -173,6 +168,7 @@ def random_neighbour_ryan(solution):
     first_position_to_flip = 0
     second_position_to_flip = 0
 
+    # Chooses two random numbers to get the selection to reverse
     while first_position_to_flip == second_position_to_flip:
         first_position_to_flip = random.randint(0, len(solution) - 2)
         second_position_to_flip = random.randint(0, len(solution) - 2)
@@ -216,23 +212,18 @@ def random_hill_climbing_local_optima():
     return solution, evaluate(solution)
 
 
+# Calculates a random neighbour of random solution, if the neighbour has a smaller total distance, it becomes the
+# solution, this is repeated for the specified number of iterations
+
 def random_hill_climbing(num):
-
     results = []
-
     random_sol = generate_random_solution()
 
-    new_plot2(random_sol)
-
-    print("Initial Permutation:", random_sol)
-
+    # Starting distance
     best_distance = evaluate(random_sol)
-    print("Initial Distance:", best_distance)
-
     results.append(best_distance)
 
     solution = random_sol.copy()
-
     iteration = 0
 
     while iteration < num:
@@ -246,22 +237,15 @@ def random_hill_climbing(num):
 
             best_distance = neighbour_distance
 
-            # print("New Permutation:", sol[1])
-            # print("New Distance:", evaluate(sol))
-            # print("New Sol:", sol)
-
         iteration += 1
 
         results.append(best_distance)
-    print("Final distance: ", best_distance)
 
     plt.title('Hill Climbing Algorithm')
     plt.xlabel('Iteration')
     plt.ylabel('Total Distance')
     plt.plot(results)
     plt.show()
-
-    #plot_colours(test_colours, solution)
 
     return solution, evaluate(solution)
 
@@ -284,11 +268,15 @@ def multi_hill_climb(tries):
     plot_colours(test_colours, best_sol)
 
 
-def multi_hill_climb_ryan(iter):
+# Runs the specified number of hillclimbs, each hillclimb returns it's best solution which is then added to a list, the
+# best result of all of the hillclimbs is returned.
+# Additionally, the list of best solutions is used to generate the mean, median and standard deviation of the results.
+def multi_hill_climb_ryan(number_of_hillclimbs):
+
     solutions = []
     results = []
 
-    for i in range(iter):
+    for i in range(number_of_hillclimbs):
         solutions.append(random_hill_climbing(2000)[0])
 
     best_sol = solutions[0]
@@ -302,7 +290,7 @@ def multi_hill_climb_ryan(iter):
             k = evaluate(solutions[j])
             best_sol = copy.deepcopy(solutions[j])
 
-    mean = sum(results)/len(results)
+    mean = sum(results) / len(results)
     median = st.median(results)
     standard_dev = st.pstdev(results)
 
@@ -319,332 +307,100 @@ def multi_hill_climb_ryan(iter):
     return best_sol
 
 
-def organise_avg(start_solution):
-    sorted_solution = start_solution.copy()
+def organise_avg():
+    sorted_solution = generate_random_solution()
 
-    avg_col = sorted_solution.copy()
+    avg_col = []
 
     for j in range(len(sorted_solution)):
-        avg_col[j] = sum(test_colours[sorted_solution[j]]) / len(test_colours[sorted_solution[j]])
+        avg_col.append(sum(test_colours[sorted_solution[j]]) / len(test_colours[sorted_solution[j]]))
 
-    for k in range(len(sorted_solution)):
-
-        for l in range(len(sorted_solution) - k - 1):
-
-            if avg_col[l] > avg_col[l + 1]:
-                temp = avg_col[l]
-
-                avg_col[l] = avg_col[l + 1]
-                avg_col[l + 1] = temp
-
-                temp_perm = sorted_solution[l]
-
-                sorted_solution[l] = sorted_solution[l + 1]
-                sorted_solution[l + 1] = temp_perm
+    sort(sorted_solution, avg_col)
 
     return sorted_solution
 
 
-def organise_red(start_solution):
-    sorted_solution = start_solution.copy()
+def organise_red():
+    sorted_solution = generate_random_solution()
 
-    red_col = sorted_solution.copy()
+    red_col = []
 
     for j in range(len(sorted_solution)):
-        red_col[j] = test_colours[sorted_solution[j]][0]
+        red_col.append(test_colours[sorted_solution[j]][0])
 
-    for k in range(len(sorted_solution)):
-
-        for l in range(len(sorted_solution) - k - 1):
-
-            if red_col[l] < red_col[l + 1]:
-                temp = red_col[l]
-
-                red_col[l] = red_col[l + 1]
-                red_col[l + 1] = temp
-
-                temp_perm = sorted_solution[l]
-
-                sorted_solution[l] = sorted_solution[l + 1]
-                sorted_solution[l + 1] = temp_perm
+    sort(sorted_solution, red_col)
 
     return sorted_solution
 
 
-def organise_green(start_solution):
-    sorted_solution = start_solution.copy()
+def organise_green():
+    sorted_solution = generate_random_solution()
 
-    green_col = sorted_solution.copy()
+    green_col = []
 
     for j in range(len(sorted_solution)):
-        green_col[j] = test_colours[sorted_solution[j]][1]
+        green_col.append(test_colours[sorted_solution[j]][1])
 
-    for k in range(len(sorted_solution)):
-
-        for l in range(len(sorted_solution) - k - 1):
-
-            if green_col[l] < green_col[l + 1]:
-                temp = green_col[l]
-
-                green_col[l] = green_col[l + 1]
-                green_col[l + 1] = temp
-
-                temp_perm = sorted_solution[l]
-
-                sorted_solution[l] = sorted_solution[l + 1]
-                sorted_solution[l + 1] = temp_perm
+    sort(sorted_solution, green_col)
 
     return sorted_solution
 
 
-def organise_blue(start_solution):
-    sorted_solution = start_solution.copy()
+def organise_blue():
+    sorted_solution = generate_random_solution()
 
-    blue_col = sorted_solution.copy()
+    blue_col = []
 
     for j in range(len(sorted_solution)):
-        blue_col[j] = test_colours[sorted_solution[j]][2]
+        blue_col.append(test_colours[sorted_solution[j]][2])
 
-    for k in range(len(sorted_solution)):
-
-        for l in range(len(sorted_solution) - k - 1):
-
-            if blue_col[l] < blue_col[l + 1]:
-                temp = blue_col[l]
-
-                blue_col[l] = blue_col[l + 1]
-                blue_col[l + 1] = temp
-
-                temp_perm = sorted_solution[l]
-
-                sorted_solution[l] = sorted_solution[l + 1]
-                sorted_solution[l + 1] = temp_perm
+    sort(sorted_solution, blue_col)
 
     return sorted_solution
 
 
-def organise_ratio_red(start_solution):
-    sorted_solution = start_solution.copy()
+def organise_ratio_red():
+    sorted_solution = generate_random_solution()
 
-    ratio_red_col = sorted_solution.copy()
+    ratio_red_col = []
 
     for j in range(len(sorted_solution)):
-        ratio_red_col[j] = test_colours[sorted_solution[j]][0] / (test_colours[sorted_solution[j]][1]
-                                                                  + test_colours[sorted_solution[j]][2])
+        ratio_red_col.append(test_colours[sorted_solution[j]][0] / (test_colours[sorted_solution[j]][1]
+                                                                    + test_colours[sorted_solution[j]][2]))
 
-    for k in range(len(sorted_solution)):
-
-        for l in range(len(sorted_solution) - k - 1):
-
-            if ratio_red_col[l] < ratio_red_col[l + 1]:
-                temp = ratio_red_col[l]
-
-                ratio_red_col[l] = ratio_red_col[l + 1]
-                ratio_red_col[l + 1] = temp
-
-                temp_perm = sorted_solution[l]
-
-                sorted_solution[l] = sorted_solution[l + 1]
-                sorted_solution[l + 1] = temp_perm
+    sort(sorted_solution, ratio_red_col)
 
     return sorted_solution
 
 
-def organise_ratio_green(start_solution):
-    sorted_solution = start_solution.copy()
+def organise_ratio_green():
+    sorted_solution = generate_random_solution()
 
-    ratio_red_col = sorted_solution.copy()
+    ratio_green_col = []
 
     for j in range(len(sorted_solution)):
-        ratio_red_col[j] = test_colours[sorted_solution[j]][1] / (test_colours[sorted_solution[j]][0]
-                                                                  + test_colours[sorted_solution[j]][2])
+        ratio_green_col.append(test_colours[sorted_solution[j]][1] / (test_colours[sorted_solution[j]][0]
+                                                                      + test_colours[sorted_solution[j]][2]))
 
-    for k in range(len(sorted_solution)):
-
-        for l in range(len(sorted_solution) - k - 1):
-
-            if ratio_red_col[l] < ratio_red_col[l + 1]:
-                temp = ratio_red_col[l]
-
-                ratio_red_col[l] = ratio_red_col[l + 1]
-                ratio_red_col[l + 1] = temp
-
-                temp_perm = sorted_solution[l]
-
-                sorted_solution[l] = sorted_solution[l + 1]
-                sorted_solution[l + 1] = temp_perm
+    sort(sorted_solution, ratio_green_col)
     return sorted_solution
 
 
-def organise_ratio_blue(start_solution):
-    sorted_solution = start_solution.copy()
+def organise_ratio_blue():
+    sorted_solution = generate_random_solution()
 
-    ratio_red_col = sorted_solution.copy()
+    ratio_blue_col = []
 
     for j in range(len(sorted_solution)):
-        ratio_red_col[j] = test_colours[sorted_solution[j]][2] / (test_colours[sorted_solution[j]][1]
-                                                                  + test_colours[sorted_solution[j]][0])
+        ratio_blue_col.append(test_colours[sorted_solution[j]][2] / (test_colours[sorted_solution[j]][1]
+                                                                     + test_colours[sorted_solution[j]][0]))
 
-    for k in range(len(sorted_solution)):
-
-        for l in range(len(sorted_solution) - k - 1):
-
-            if ratio_red_col[l] < ratio_red_col[l + 1]:
-                temp = ratio_red_col[l]
-
-                ratio_red_col[l] = ratio_red_col[l + 1]
-                ratio_red_col[l + 1] = temp
-
-                temp_perm = sorted_solution[l]
-
-                sorted_solution[l] = sorted_solution[l + 1]
-                sorted_solution[l + 1] = temp_perm
+    sort(sorted_solution, ratio_blue_col)
 
     return sorted_solution
 
 
-# Calculates local optima by taking the best neighbour it can find by swapping adjacent indices
-def loc_opt(sol):
-
-    best_distance = evaluate(sol)
-
-    temp_pos1 = 0
-    temp_pos2 = 0
-    better_found = True
-
-    while better_found:
-
-        better_found = False
-
-        for i in range(len(sol) - 1):
-
-            temp1 = sol[i]
-            temp2 = sol[i + 1]
-
-            sol[i] = temp2
-            sol[i + 1] = temp1
-
-            new_distance = evaluate(sol)
-
-            if new_distance < best_distance:
-                best_distance = new_distance
-                temp_pos1 = i
-                temp_pos2 = i + 1
-                better_found = True
-
-            sol[i] = temp1
-            sol[i + 1] = temp2
-
-        if better_found:
-            temp1 = sol[temp_pos1]
-            temp2 = sol[temp_pos2]
-
-            sol[temp_pos1] = temp2
-            sol[temp_pos2] = temp1
-
-    return sol
-
-
-# Calculates local optima by taking the best neighbour it can find by searching all possible neighbours
-def loc_opt2():
-
-    sol = generate_random_solution()
-
-    best_distance = evaluate(sol)
-
-    temp_pos1 = 0
-    temp_pos2 = 0
-    better_found = True
-
-    while better_found:
-
-        better_found = False
-
-        for i in range(len(sol) - 1):
-
-            for j in range(i + 1, len(sol)):
-
-                temp1 = sol[i]
-                temp2 = sol[j]
-
-                sol[i] = temp2
-                sol[j] = temp1
-
-                new_distance = evaluate(sol)
-
-                if new_distance < best_distance:
-                    best_distance = new_distance
-                    temp_pos1 = i
-                    temp_pos2 = j
-                    better_found = True
-
-                sol[i] = temp1
-                sol[j] = temp2
-
-        if better_found:
-            temp1 = sol[temp_pos1]
-            temp2 = sol[temp_pos2]
-
-            sol[temp_pos1] = temp2
-            sol[temp_pos2] = temp1
-
-    return sol
-
-
-# Calculates local optima by taking the first better neighbour it finds
-def loc_opt3():
-
-    sol = solve(generate_random_solution())
-
-    best_distance = evaluate(sol)
-
-    print(best_distance)
-
-    temp_pos1 = 0
-    temp_pos2 = 0
-    better_found = True
-
-    while better_found:
-
-        better_found = False
-
-        for i in range(len(sol) - 1):
-
-            for j in range(i + 1, len(sol)):
-
-                temp1 = sol[i]
-                temp2 = sol[j]
-
-                sol[i] = temp2
-                sol[j] = temp1
-
-                new_distance = evaluate(sol)
-
-                if new_distance < best_distance:
-                    best_distance = new_distance
-                    temp_pos1 = i
-                    temp_pos2 = j
-                    better_found = True
-
-                sol[i] = temp1
-                sol[j] = temp2
-
-                if better_found:
-                    break
-
-        if better_found:
-            temp1 = sol[temp_pos1]
-            temp2 = sol[temp_pos2]
-
-            sol[temp_pos1] = temp2
-            sol[temp_pos2] = temp1
-
-            print(best_distance)
-
-    return sol
-
-
-def hsl():
+def hue():
     hsl = []
 
     hue = 0
@@ -662,27 +418,15 @@ def hsl():
         max_index = test_colours[solution[i]].index(max(test_colours[solution[i]]))
         max_value = max(test_colours[solution[i]])
 
-
-        # Calculating Lum and Sat
-        '''lum = (max_value + min_value) / 2
-
-        if max_value == min_value:
-            hue = 0
-        else:
-            if lum >= 0.5:
-                sat = (max_value - min_value) / (max_value + min_value)
-            else:
-                sat = (max_value - min_value) / (2 - max_value - min_value)'''
-
         # One source said mod 6 and another didn't, mod 6 returns a better distance
         if max_index == 0:
-            hue = ((green - blue))/(max_value - min_value)
+            hue = (green - blue) / (max_value - min_value)
 
         if max_index == 1:
-            hue = 2 + (blue - red)/(max_value - min_value)
+            hue = 2 + (blue - red) / (max_value - min_value)
 
         if max_index == 2:
-            hue = 4 + (red - green)/(max_value - min_value)
+            hue = 4 + (red - green) / (max_value - min_value)
 
         hue = hue * 60
 
@@ -694,105 +438,45 @@ def hsl():
 
         hsl.append(hue)
 
+    sort(solution, hsl)
+    print(hsl)
+    return solution
+
+
+def plot_ryan(perm, name):
+    colours = []
+    cols = []
+
+    for i in range(len(perm)):
+        colours.append([test_colours[perm[i]][0], test_colours[perm[i]][1], test_colours[perm[i]][2]])
+
+    cols.append(colours)
+
+    fig, axes = plt.subplots(1, 1, figsize=(100, 20), dpi=10)
+
+    axes.imshow(cols, interpolation='none', aspect='auto', origin='upper')
+    axes.axis('off')
+    plt.savefig(name + '.png')
+    plt.tight_layout()
+    plt.show()
+
+
+def sort(solution, colour_list):
+
     for k in range(len(solution)):
 
         for l in range(len(solution) - k - 1):
 
-            if hsl[l] > hsl[l + 1]:
-                temp = hsl[l]
+            if colour_list[l] < colour_list[l + 1]:
+                temp = colour_list[l]
 
-                hsl[l] = hsl[l + 1]
-                hsl[l + 1] = temp
+                colour_list[l] = colour_list[l + 1]
+                colour_list[l + 1] = temp
 
                 temp_perm = solution[l]
 
                 solution[l] = solution[l + 1]
                 solution[l + 1] = temp_perm
-
-
-    return solution
-
-
-def iterator(num):
-
-    #Choose starting solution
-    best_sol = loc_opt(hsl())
-
-    it = 0
-
-    while it < num:
-
-        temp_sol = random_neighbour(best_sol)
-
-        temp_sol2 = loc_opt(temp_sol)
-
-        if evaluate(temp_sol2) < evaluate(best_sol):
-            best_sol = temp_sol2
-
-        it +=1
-
-    return best_sol
-
-
-def convert(colour):
-
-    converted = []
-
-    for i in range(len(colour)):
-
-        converted.append(colour[i]*255)
-
-    print("rgb:",converted)
-
-def generate_random_solution_temp():
-
-    solution = []
-
-    for i in range(1000):
-        solution.append(i)
-
-    return solution
-
-def new_plot(perm):
-    cols = []
-    colours = []
-
-    for i in range(1000):
-        cols.append(i)
-        colours.append([test_colours[perm[i]][0], test_colours[perm[i]][1], test_colours[perm[i]][2]])
-
-    plt.figure(figsize=(10,10))
-
-    plt.bar(cols, height=100, width=0.5, bottom=500, color=colours)
-    plt.axis('square')
-    plt.axis('off')
-
-    plt.show()
-
-
-def new_plot2(perm):
-    colours = []
-    cols = []
-
-    for i in range(1000):
-        colours.append([test_colours[perm[i]][0], test_colours[perm[i]][1], test_colours[perm[i]][2]])
-
-    cols.append(colours)
-
-
-
-    fig, axes = plt.subplots(1, 1, figsize=(100, 10), dpi=100)
-
-    print("colours:",cols)
-
-    axes.imshow(cols, interpolation='none', aspect='auto', origin='upper')
-    axes.axis('off')
-    plt.savefig('plot.png')
-    plt.tight_layout()
-    plt.show()
-
-
-
 
 
 #####_______main_____######
@@ -810,60 +494,5 @@ test_colours = colours[0:test_size]  # list of colours for testing
 permutation = random.sample(range(test_size),
                             test_size)  # produces random pemutation of lenght test_size, from the numbers 0 to test_size -1
 
-#random_hill_climbing(10)
-#multi_hill_climb_ryan(30)
-
-
-'''test = generate_random_solution()
-# random_hill_climbing(1000)
-# multi_hill_climb_ryan(20)
-# multi_hill_climb(20)
-solve = solve(test)
-average = organise_avg(test)
-red = organise_red(test)
-green = organise_green(test)
-blue = organise_blue(test)
-ratio_red = organise_ratio_red(test)
-ratio_green = organise_ratio_green(test)
-ratio_blue = organise_ratio_blue(test)
-
-plot_colours(test_colours, solve)
-print("solve achieved: ", evaluate(solve))
-plot_colours(test_colours, average)
-print("average achieved: ", evaluate(average))
-plot_colours(test_colours, red)
-print("red achieved: ", evaluate(red))
-plot_colours(test_colours, green)
-print("green achieved: ", evaluate(green))
-plot_colours(test_colours, blue)
-print("blue achieved: ", evaluate(blue))
-plot_colours(test_colours, ratio_red)
-print("ratio red: ", evaluate(ratio_red))
-plot_colours(test_colours, ratio_green)
-print("ratio green: ", evaluate(ratio_green))
-plot_colours(test_colours, ratio_blue)
-print("ratio blue: ", evaluate(ratio_blue))
-
-# multi_hill_climb(100)
-# multi_hill_climb(1000)
-# multi_hill_climb(5000)
-# multi_hill_climb(25000)
-
-opt = loc_opt()
-plot_colours(test_colours, opt)
-print("loc opt achieved", evaluate(opt))
-
-opt2 = loc_opt2()
-plot_colours(test_colours, opt2)
-print("loc opt2 achieved", evaluate(opt2))
-
-opt3 = loc_opt3()
-plot_colours(test_colours, opt3)
-print("loc opt3 achieved", evaluate(opt3))
-
-print(local_optima(opt3))'''
-
-test = random_hill_climbing(100000)[0]
-new_plot2(test)
 
 exit()
