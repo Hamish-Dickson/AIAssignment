@@ -7,7 +7,7 @@ import statistics as st
 from math import sqrt
 
 
-# TODO Write an introduction? Introduce that a solution is a permutation of the colours in the gile?
+# TODO Write an introduction? Introduce that a solution is a permutation of the colours in the file?
 
 # Reads the file  of colours
 # Returns the number of colours in the file and a list with the colours (RGB) values
@@ -545,7 +545,7 @@ os.chdir(dir_path)  # Change the working directory so we can read the file
 
 ncolors, colours = read_file('colours.txt')  # Total number of colours and list of colours
 
-test_size = 100  # Size of the subset of colours for testing
+test_size = 1000  # Size of the subset of colours for testing
 test_colours = colours[0:test_size]  # list of colours for testing
 
 # permutation is simply order of elements to be chosen I.E 0, 1, 4, 5. could change to 0, 1, 2, 3 for testing
