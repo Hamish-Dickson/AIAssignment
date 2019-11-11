@@ -6,7 +6,8 @@ import copy
 import statistics as st
 from math import sqrt
 
-#TODO Write an introduction? Introduce that a solution is a permutation of the colours in the gile?
+
+# TODO Write an introduction? Introduce that a solution is a permutation of the colours in the gile?
 
 # Reads the file  of colours
 # Returns the number of colours in the file and a list with the colours (RGB) values
@@ -43,6 +44,7 @@ def plot_colours(col, perm):
     axes.axis('off')
     plt.savefig("plot.png")
     plt.show()
+
 
 # Calculates distance between 2 colours using euclidean distance formula
 def calculate_distance(colour1, colour2):
@@ -244,11 +246,11 @@ def random_hill_climbing(num):
 
         results.append(best_distance)
 
-    plt.title('Hill Climbing Algorithm')
+    '''plt.title('Hill Climbing Algorithm')
     plt.xlabel('Iteration')
     plt.ylabel('Total Distance')
     plt.plot(results)
-    plt.show()
+    plt.show()'''
 
     return solution, evaluate(solution)
 
@@ -274,14 +276,20 @@ def multi_hill_climb(tries):
 # Runs the specified number of hillclimbs, each hillclimb returns it's best solution which is then added to a list, the
 # best result of all of the hillclimbs is returned.
 # Additionally, the list of best solutions is used to generate the mean, median and standard deviation of the results.
-def multi_hill_climb_ryan(number_of_hillclimbs):
-
+def multi_hill_climb_ryan(number_of_hillclimbs, hillclimb_type):
     solutions = []
     results = []
 
-    #TODO switch
-    for i in range(number_of_hillclimbs):
-        solutions.append(random_hill_climbing(2000)[0])
+    if hillclimb_type.lower() == 'random':
+        for i in range(number_of_hillclimbs):
+            solutions.append(random_hill_climbing(2000)[0])
+    elif hillclimb_type.lower() == 'knn':
+        for i in range(number_of_hillclimbs):
+            solutions.append(nearest_neighbour(generate_random_solution()))
+    else:
+        print('Incorrect usage for multi hill climb.')
+        exit(1)
+
 
     best_sol = solutions[0]
     print(best_sol)
@@ -298,15 +306,16 @@ def multi_hill_climb_ryan(number_of_hillclimbs):
     median = st.median(results)
     standard_dev = st.pstdev(results)
 
+    print("Results for " + hillclimb_type + " algorithm")
     print("Mean:", mean)
     print("Median:", median)
     print("Standard Deviation", standard_dev)
 
-    print(best_sol)
+    print("Best permutation: ", best_sol)
 
     print("Best Sol:", evaluate(best_sol))
 
-    plt.title('Pre Seeded Multi Hill Climbing Algorithm Using Nearest Neighbour')
+    plt.title(hillclimb_type + ' Hill climb for ' + str(test_size) + ' colours. ' + str(number_of_hillclimbs) + ' iterations.')
     plt.xlabel('Iteration')
     plt.ylabel('Total Distance')
     plt.plot(results)
@@ -314,7 +323,8 @@ def multi_hill_climb_ryan(number_of_hillclimbs):
 
     plot_colours(test_colours, best_sol)
 
-    return best_sol
+    return best_sol, results
+
 
 # Organises the colours based on the average of their red, green and blue values
 def organise_avg():
@@ -332,7 +342,7 @@ def organise_avg():
     return sorted_solution
 
 
-#TODO make the following methods switches?
+# TODO make the following methods switches?
 
 # Organises the colours based on their red value
 def organise_red():
@@ -490,14 +500,13 @@ def plot_ryan(perm):
 
     axes.imshow(cols, interpolation='none', aspect='auto', origin='upper')
     axes.axis('off')
-    #plt.savefig(name + '.png')
+    # plt.savefig(name + '.png')
     plt.tight_layout()
     plt.show()
 
 
 # A standard bubble sort
 def sort(solution, colour_list):
-
     for k in range(len(solution)):
 
         for l in range(len(solution) - k - 1):
@@ -514,6 +523,20 @@ def sort(solution, colour_list):
                 solution[l + 1] = temp_perm
 
 
+def demonstration():
+    randomhc = multi_hill_climb_ryan(30, 'Random')
+    knn = multi_hill_climb_ryan(30, 'KNN')
+
+    plt.plot(randomhc[1], label='Random')
+    plt.plot(knn[1], label='KNN')
+    plt.xlabel('Iteration')
+    plt.ylabel('Total Distance')
+    plt.title('Side by side comparison of Random and KNN hillclimbs. ' + str(test_size) + ' colours.')
+    plt.legend()
+    plt.show()
+
+
+
 #####_______main_____######
 
 # Get the directory where the file is located
@@ -522,13 +545,13 @@ os.chdir(dir_path)  # Change the working directory so we can read the file
 
 ncolors, colours = read_file('colours.txt')  # Total number of colours and list of colours
 
-test_size = 1000  # Size of the subset of colours for testing
+test_size = 100  # Size of the subset of colours for testing
 test_colours = colours[0:test_size]  # list of colours for testing
 
 # permutation is simply order of elements to be chosen I.E 0, 1, 4, 5. could change to 0, 1, 2, 3 for testing
 permutation = random.sample(range(test_size),
                             test_size)  # produces random pemutation of lenght test_size, from the numbers 0 to test_size -1
-
+'''
 plot_ryan(organise_avg())
 plot_ryan(organise_red())
 plot_ryan(organise_green())
@@ -538,5 +561,7 @@ plot_ryan(organise_ratio_green())
 plot_ryan(organise_ratio_blue())
 plot_ryan(hue())
 plot_ryan(nearest_neighbour(generate_random_solution()))
+'''
+demonstration()
 
 exit()
