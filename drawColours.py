@@ -580,7 +580,7 @@ def accept(t, s, s_):
         return s_
     else:
         rand = random.uniform(0, 1)
-        prob = math.exp((evaluate(s)*100 - evaluate(s_)*100) / t)
+        prob = math.exp((evaluate(s)*50 - evaluate(s_)*50) / t)
         print(prob)
 
         if rand < prob:
