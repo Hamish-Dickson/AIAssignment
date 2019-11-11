@@ -5,6 +5,7 @@ import os
 import copy
 import statistics as st
 from math import sqrt
+import math
 
 
 # TODO Write an introduction? Introduce that a solution is a permutation of the colours in the gile?
@@ -220,9 +221,9 @@ def random_hill_climbing_local_optima():
 # Calculates a random neighbour of random solution, if the neighbour has a smaller total distance, it becomes the
 # solution, this is repeated for the specified number of iterations
 
-def random_hill_climbing(num):
+def random_hill_climbing(num, random_sol):
     results = []
-    random_sol = generate_random_solution()
+    #random_sol = generate_random_solution()
 
     # Starting distance
     best_distance = evaluate(random_sol)
@@ -252,7 +253,7 @@ def random_hill_climbing(num):
     plt.plot(results)
     plt.show()'''
 
-    return solution, evaluate(solution)
+    return solution, evaluate(solution), results
 
 
 # method to perform multiple hill climbs, taking in the number of tries to be attempted
@@ -536,6 +537,59 @@ def demonstration():
     plt.show()
 
 
+def simulated_annealing():
+
+    solution = generate_random_solution()
+    results2 = random_hill_climbing(1000, solution)[2]
+    results = []
+
+    #for t in range(1000, 0, -1):
+
+    t = 100
+    while t > 0:
+
+        #print("sol:", evaluate(solution))
+        neighbour = random_neighbour_ryan(solution)
+        #print("nei 1:", evaluate(neighbour))
+        neighbour = random_neighbour_ryan(neighbour)
+        #print("nei 2:", evaluate(neighbour))
+        neighbour = random_neighbour_ryan(neighbour)
+        #print("nei 3:", evaluate(neighbour))
+        neighbour = random_neighbour_ryan(neighbour)
+        #print("nei 4:", evaluate(neighbour))
+
+        solution = accept(t, solution, neighbour)
+
+        results.append(evaluate(solution))
+
+        t = t - 0.1
+
+
+
+    plt.plot(results, label='SA')
+    plt.plot(results2, label='Random')
+    plt.xlabel('Iteration')
+    plt.ylabel('Total Distance')
+    plt.title('Side by side comparison of SA and Random hillclimbs. ' + str(test_size) + ' colours.')
+    plt.legend()
+    plt.show()
+
+def accept(t, s, s_):
+
+    if evaluate(s_) <= evaluate(s):
+        return s_
+    else:
+        rand = random.uniform(0, 1)
+        prob = math.exp((evaluate(s)*100 - evaluate(s_)*100) / t)
+        print(prob)
+
+        if rand < prob:
+            return s_
+        else:
+            return s
+
+
+
 
 #####_______main_____######
 
@@ -545,7 +599,7 @@ os.chdir(dir_path)  # Change the working directory so we can read the file
 
 ncolors, colours = read_file('colours.txt')  # Total number of colours and list of colours
 
-test_size = 100  # Size of the subset of colours for testing
+test_size = 1000  # Size of the subset of colours for testing
 test_colours = colours[0:test_size]  # list of colours for testing
 
 # permutation is simply order of elements to be chosen I.E 0, 1, 4, 5. could change to 0, 1, 2, 3 for testing
@@ -562,6 +616,8 @@ plot_ryan(organise_ratio_blue())
 plot_ryan(hue())
 plot_ryan(nearest_neighbour(generate_random_solution()))
 '''
-demonstration()
+#demonstration()
+
+simulated_annealing()
 
 exit()
